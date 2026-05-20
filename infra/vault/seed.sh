@@ -33,6 +33,6 @@ vault kv put secret/app \
   minio_root_user="minioadmin" \
   minio_root_password="minioadmin" \
   minio_endpoint="http://minio:9000" \
-  minio_bucket="maintainers-copilot"
+  minio_bucket="maintainers-copilot" 
 
 echo "Vault secrets seeded."
