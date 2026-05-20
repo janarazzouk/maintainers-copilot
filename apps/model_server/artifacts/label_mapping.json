@@ -1,0 +1,21 @@
+{
+  "label2id": {
+    "bug": 0,
+    "feature": 1,
+    "docs": 2,
+    "question": 3
+  },
+  "id2label": {
+    "0": "bug",
+    "1": "feature",
+    "2": "docs",
+    "3": "question"
+  },
+  "github_label_mapping": {
+    "confirmed-bug": "bug",
+    "regression": "bug",
+    "feature request": "feature",
+    "docs": "docs",
+    "question": "question"
+  }
+}

@@ -1,0 +1,94 @@
+{
+  "model_family": "Fine-tuned RoBERTa Transformer",
+  "base_model": "distilroberta-base",
+  "task": "Node.js GitHub issue classification",
+  "labels": [
+    "bug",
+    "feature",
+    "docs",
+    "question"
+  ],
+  "max_length": 512,
+  "training_seconds": 210.60539628499964,
+  "validation": {
+    "eval_loss": 0.8966729640960693,
+    "eval_accuracy": 0.8375,
+    "eval_macro_f1": 0.8357844357558407,
+    "eval_weighted_f1": 0.8357844357558407,
+    "eval_runtime": 3.1027,
+    "eval_samples_per_second": 232.057,
+    "eval_steps_per_second": 14.504,
+    "epoch": 4.0
+  },
+  "test": {
+    "accuracy": 0.7555555555555555,
+    "macro_f1": 0.7490969188211796,
+    "weighted_f1": 0.7490969188211796,
+    "avg_latency_ms_per_issue": 4.600256395833134,
+    "classification_report": {
+      "bug": {
+        "precision": 0.6038461538461538,
+        "recall": 0.8722222222222222,
+        "f1-score": 0.7136363636363636,
+        "support": 180.0
+      },
+      "feature": {
+        "precision": 0.8349514563106796,
+        "recall": 0.9555555555555556,
+        "f1-score": 0.8911917098445595,
+        "support": 180.0
+      },
+      "docs": {
+        "precision": 0.8943661971830986,
+        "recall": 0.7055555555555556,
+        "f1-score": 0.7888198757763976,
+        "support": 180.0
+      },
+      "question": {
+        "precision": 0.7857142857142857,
+        "recall": 0.4888888888888889,
+        "f1-score": 0.6027397260273972,
+        "support": 180.0
+      },
+      "accuracy": 0.7555555555555555,
+      "macro avg": {
+        "precision": 0.7797195232635544,
+        "recall": 0.7555555555555556,
+        "f1-score": 0.7490969188211793,
+        "support": 720.0
+      },
+      "weighted avg": {
+        "precision": 0.7797195232635543,
+        "recall": 0.7555555555555555,
+        "f1-score": 0.7490969188211795,
+        "support": 720.0
+      }
+    },
+    "confusion_matrix": [
+      [
+        157,
+        8,
+        3,
+        12
+      ],
+      [
+        5,
+        172,
+        3,
+        0
+      ],
+      [
+        37,
+        4,
+        127,
+        12
+      ],
+      [
+        61,
+        22,
+        9,
+        88
+      ]
+    ]
+  }
+}
