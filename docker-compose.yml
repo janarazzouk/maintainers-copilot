@@ -46,6 +46,21 @@ services:
     cap_add:
       - IPC_LOCK
 
+  vault-init:
+    image: hashicorp/vault:latest
+    container_name: mc-vault-init
+    environment:
+      VAULT_ADDR: http://vault:8200
+      VAULT_TOKEN: ${VAULT_DEV_ROOT_TOKEN_ID}
+    volumes:
+      - ./infra/vault/seed.sh:/seed.sh:ro
+    depends_on:
+      vault:
+        condition: service_started
+    cap_add:
+      - IPC_LOCK
+    entrypoint: ["/bin/sh", "/seed.sh"]
+
   migrate:
     build:
       context: ./apps/api
@@ -72,8 +87,8 @@ services:
         condition: service_started
       minio:
         condition: service_started
-      vault:
-        condition: service_started
+      vault-init:
+        condition: service_completed_successfully
       migrate:
         condition: service_completed_successfully
 
