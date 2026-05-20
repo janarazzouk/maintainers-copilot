@@ -1,0 +1,14 @@
+[project]
+name = "maintainers-copilot"
+version = "0.1.0"
+description = "Maintainer's Copilot monorepo"
+requires-python = ">=3.11,<3.12"
+dependencies = []
+
+[tool.uv.workspace]
+members = [
+    "apps/api",
+    "apps/model_server",
+    "apps/chatbot",
+    "packages/common"
+]

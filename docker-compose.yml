@@ -1,0 +1,120 @@
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: mc-db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - mc_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  redis:
+    image: redis:7
+    container_name: mc-redis
+    ports:
+      - "6379:6379"
+
+  minio:
+    image: minio/minio
+    container_name: mc-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - mc_minio:/data
+
+  vault:
+    image: hashicorp/vault:latest
+    container_name: mc-vault
+    environment:
+      VAULT_DEV_ROOT_TOKEN_ID: ${VAULT_DEV_ROOT_TOKEN_ID}
+      VAULT_DEV_LISTEN_ADDRESS: 0.0.0.0:8200
+    ports:
+      - "8200:8200"
+    cap_add:
+      - IPC_LOCK
+
+  migrate:
+    build:
+      context: ./apps/api
+    container_name: mc-migrate
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+    command: ["sh", "-c", "echo 'Later: alembic upgrade head'"]
+
+  api:
+    build:
+      context: ./apps/api
+    container_name: mc-api
+    env_file:
+      - .env
+    ports:
+      - "${API_PORT}:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      minio:
+        condition: service_started
+      vault:
+        condition: service_started
+      migrate:
+        condition: service_completed_successfully
+
+  model-server:
+    build:
+      context: ./apps/model_server
+    container_name: mc-model-server
+    env_file:
+      - .env
+    ports:
+      - "${MODEL_SERVER_PORT}:8001"
+
+  chatbot:
+    build:
+      context: ./apps/chatbot
+    container_name: mc-chatbot
+    env_file:
+      - .env
+    ports:
+      - "${CHATBOT_PORT}:8501"
+    depends_on:
+      api:
+        condition: service_started
+
+  widget:
+    build:
+      context: ./apps/widget
+    container_name: mc-widget
+    ports:
+      - "${WIDGET_PORT}:80"
+
+  host:
+    build:
+      context: ./demo/host
+    container_name: mc-host
+    ports:
+      - "${HOST_PORT}:80"
+    depends_on:
+      widget:
+        condition: service_started
+
+volumes:
+  mc_pgdata:
+  mc_minio:

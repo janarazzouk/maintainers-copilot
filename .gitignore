@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+data/raw/*
+data/processed/*
+data/splits/*
+mlruns/
+.DS_Store
+node_modules/
+dist/
