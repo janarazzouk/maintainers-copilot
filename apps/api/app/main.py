@@ -5,7 +5,8 @@ from fastapi import FastAPI
 
 from app.infra.config import get_settings
 from app.infra.vault import VaultClient
-
+from app.infra.database import check_database_connection, init_database
+from app.infra.database import check_database_connection
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
@@ -17,6 +18,8 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     )
 
     app_secrets = vault.read_app_secrets()
+    init_database(app_secrets["database_url"])
+    check_database_connection()
 
     app.state.secrets = app_secrets
 
@@ -40,3 +43,9 @@ def secrets_check() -> dict[str, object]:
         "vault_loaded": True,
         "available_secret_keys": sorted(app.state.secrets.keys()),
     }
+
+
+@app.get("/debug/db-check")
+def db_check() -> dict[str, object]:
+    check_database_connection()
+    return {"database_connected": True}
