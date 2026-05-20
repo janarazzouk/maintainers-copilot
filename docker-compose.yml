@@ -55,7 +55,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    command: ["sh", "-c", "echo 'Later: alembic upgrade head'"]
+    command: ["alembic", "upgrade", "head"]
 
   api:
     build:
