@@ -9,6 +9,7 @@ _SessionLocal: sessionmaker[Session] | None = None
 
 
 def init_database(database_url: str) -> None:
+    """Initialize SQLAlchemy using the database URL loaded from Vault."""
     global _engine, _SessionLocal
 
     _engine = create_engine(
@@ -24,6 +25,7 @@ def init_database(database_url: str) -> None:
 
 
 def get_db() -> Generator[Session, None, None]:
+    """FastAPI dependency for database sessions."""
     if _SessionLocal is None:
         raise RuntimeError("Database has not been initialized.")
 
@@ -35,6 +37,7 @@ def get_db() -> Generator[Session, None, None]:
 
 
 def check_database_connection() -> None:
+    """Fail fast if the API cannot reach Postgres."""
     if _engine is None:
         raise RuntimeError("Database has not been initialized.")
 
