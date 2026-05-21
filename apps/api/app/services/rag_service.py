@@ -1,25 +1,40 @@
+from dataclasses import dataclass
+
 from sqlalchemy.orm import Session
 
 from app.infra.embeddings import EmbeddingModel
+from app.models.rag import RagChunk
 from app.repositories.rag_repository import RagRepository
 from app.schemas.rag import RagQueryRequest, RagQueryResponse, RagSource, RagTrace
 
 
+@dataclass(frozen=True)
+class HybridCandidate:
+    chunk: RagChunk
+    score: float
+    dense_score: float
+    keyword_score: float
+
+
 class RagService:
-    """Dense retrieval service for the RAG pipeline.
+    """Hybrid retrieval service for the RAG pipeline.
 
     Current version:
     - embeds the question
-    - searches pgvector
-    - deduplicates repeated chunks by parent doc_id
+    - searches pgvector dense embeddings
+    - searches PostgreSQL full-text keyword index
+    - merges dense + keyword scores
+    - deduplicates by parent doc_id
     - returns clean parent-document context previews
 
     Later versions will add:
-    - BM25 hybrid search
     - cross-encoder reranking
     - multi-query rewriting
     - LLM generation
     """
+
+    DENSE_WEIGHT = 0.60
+    KEYWORD_WEIGHT = 0.40
 
     def __init__(
         self,
@@ -32,33 +47,40 @@ class RagService:
     def query(self, payload: RagQueryRequest) -> RagQueryResponse:
         query_embedding = self.embedding_model.embed_query(payload.question)
 
-        # Retrieve more candidates than we display because many top chunks
-        # may come from the same parent issue.
         candidate_limit = max(payload.top_k * 6, 20)
 
-        candidates = self.repository.search_chunks_by_vector(
+        dense_candidates = self.repository.search_chunks_by_vector(
             query_embedding=query_embedding,
             limit=candidate_limit,
             final_label=payload.label_filter,
         )
 
+        keyword_candidates = self.repository.search_chunks_by_keyword(
+            query_text=payload.question,
+            limit=candidate_limit,
+            final_label=payload.label_filter,
+        )
+
+        hybrid_candidates = self._merge_hybrid_candidates(
+            dense_candidates=dense_candidates,
+            keyword_candidates=keyword_candidates,
+        )
+
         diversified = self._deduplicate_by_doc_id(
-            candidates=candidates,
+            candidates=hybrid_candidates,
             top_k=payload.top_k,
         )
 
         doc_ids = self._unique_doc_ids(
-            [chunk.doc_id for chunk, _distance in diversified]
+            [candidate.chunk.doc_id for candidate in diversified]
         )
         documents_by_id = self.repository.get_documents_by_doc_ids(doc_ids)
 
         sources: list[RagSource] = []
 
-        for chunk, distance in diversified:
+        for candidate in diversified:
+            chunk = candidate.chunk
             document = documents_by_id.get(chunk.doc_id)
-
-            # pgvector cosine distance: lower is better.
-            score = max(0.0, 1.0 - distance)
 
             sources.append(
                 RagSource(
@@ -69,7 +91,7 @@ class RagService:
                     url=chunk.url,
                     final_label=chunk.final_label,
                     resolution_type=document.resolution_type if document else None,
-                    score=round(score, 4),
+                    score=round(candidate.score, 4),
                     chunk_excerpt=self._excerpt(chunk.chunk_text, max_chars=650),
                     problem_summary_excerpt=(
                         self._excerpt(document.problem_summary, max_chars=650)
@@ -89,7 +111,7 @@ class RagService:
             sources=sources,
             trace=RagTrace(
                 original_question=payload.question,
-                candidate_chunk_count=len(candidates),
+                candidate_chunk_count=len(hybrid_candidates),
                 retrieved_chunk_ids=[source.chunk_id for source in sources],
                 retrieved_doc_ids=self._unique_doc_ids(
                     [source.doc_id for source in sources]
@@ -97,26 +119,77 @@ class RagService:
             ),
         )
 
-    def _deduplicate_by_doc_id(
+    def _merge_hybrid_candidates(
         self,
-        candidates: list[tuple[object, float]],
-        top_k: int,
-    ) -> list[tuple[object, float]]:
-        """Keep only the best chunk per parent document.
+        dense_candidates: list[tuple[RagChunk, float]],
+        keyword_candidates: list[tuple[RagChunk, float]],
+    ) -> list[HybridCandidate]:
+        """Merge dense and keyword candidates into one ranked list.
 
-        Without this, one issue with many similar chunks can dominate
-        the whole response.
+        Dense search returns cosine distance, where lower is better.
+        Keyword search returns full-text rank, where higher is better.
+        We normalize both into 0..1 scores before combining them.
         """
 
-        selected: list[tuple[object, float]] = []
+        dense_scores: dict[str, float] = {}
+        keyword_scores: dict[str, float] = {}
+        chunks_by_id: dict[str, RagChunk] = {}
+
+        for chunk, distance in dense_candidates:
+            chunks_by_id[chunk.chunk_id] = chunk
+
+            # Convert cosine distance to similarity.
+            dense_scores[chunk.chunk_id] = max(0.0, 1.0 - float(distance))
+
+        max_keyword_rank = max(
+            [rank for _chunk, rank in keyword_candidates],
+            default=0.0,
+        )
+
+        for chunk, rank in keyword_candidates:
+            chunks_by_id[chunk.chunk_id] = chunk
+
+            if max_keyword_rank > 0:
+                keyword_scores[chunk.chunk_id] = float(rank) / max_keyword_rank
+            else:
+                keyword_scores[chunk.chunk_id] = 0.0
+
+        merged: list[HybridCandidate] = []
+
+        for chunk_id, chunk in chunks_by_id.items():
+            dense_score = dense_scores.get(chunk_id, 0.0)
+            keyword_score = keyword_scores.get(chunk_id, 0.0)
+
+            final_score = (
+                self.DENSE_WEIGHT * dense_score
+                + self.KEYWORD_WEIGHT * keyword_score
+            )
+
+            merged.append(
+                HybridCandidate(
+                    chunk=chunk,
+                    score=final_score,
+                    dense_score=dense_score,
+                    keyword_score=keyword_score,
+                )
+            )
+
+        return sorted(merged, key=lambda item: item.score, reverse=True)
+
+    def _deduplicate_by_doc_id(
+        self,
+        candidates: list[HybridCandidate],
+        top_k: int,
+    ) -> list[HybridCandidate]:
+        selected: list[HybridCandidate] = []
         seen_doc_ids: set[str] = set()
 
-        for chunk, distance in candidates:
-            if chunk.doc_id in seen_doc_ids:
+        for candidate in candidates:
+            if candidate.chunk.doc_id in seen_doc_ids:
                 continue
 
-            selected.append((chunk, distance))
-            seen_doc_ids.add(chunk.doc_id)
+            selected.append(candidate)
+            seen_doc_ids.add(candidate.chunk.doc_id)
 
             if len(selected) >= top_k:
                 break
@@ -137,7 +210,8 @@ class RagService:
         return (
             f"I found {len(sources)} relevant parent issue(s). "
             f"The top match is {issue_part}: {top.title}. "
-            "This endpoint is currently returning retrieved context only; "
+            "This endpoint is currently using hybrid retrieval "
+            "(dense vector search + keyword search). "
             "LLM answer generation will be added after retrieval evaluation."
         )
 

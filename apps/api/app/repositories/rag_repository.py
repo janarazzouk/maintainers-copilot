@@ -155,3 +155,36 @@ class RagRepository:
         documents = self.db.scalars(statement).all()
 
         return {document.doc_id: document for document in documents}
+    
+    def search_chunks_by_keyword(
+        self,
+        query_text: str,
+        limit: int = 20,
+        final_label: str | None = None,
+    ) -> list[tuple[RagChunk, float]]:
+        """Sparse keyword search using PostgreSQL full-text search.
+
+        This is the keyword side of hybrid retrieval.
+        Higher rank is better.
+        """
+
+        ts_vector = func.to_tsvector(
+            "english",
+            func.coalesce(RagChunk.chunk_text, ""),
+        )
+        ts_query = func.websearch_to_tsquery("english", query_text)
+        rank = func.ts_rank_cd(ts_vector, ts_query).label("rank")
+
+        statement = (
+            select(RagChunk, rank)
+            .where(ts_vector.op("@@")(ts_query))
+            .order_by(rank.desc())
+            .limit(limit)
+        )
+
+        if final_label:
+            statement = statement.where(RagChunk.final_label == final_label)
+
+        rows = self.db.execute(statement).all()
+
+        return [(row[0], float(row[1])) for row in rows]
