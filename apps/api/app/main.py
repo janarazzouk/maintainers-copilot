@@ -10,10 +10,15 @@ from app.infra.vault import VaultClient
 from app.api.routers.model_tools import router as model_tools_router
 from app.infra.model_server_client import ModelServerClient
 
+from app.api.routers.rag import router as rag_router
+from app.infra.embeddings import EmbeddingModel
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     settings = get_settings()
+    app.state.embedding_model = EmbeddingModel(
+        model_name=settings.embedding_model_name,
+    )
     app.state.model_server_client = ModelServerClient(
     base_url=settings.model_server_url,
 )
@@ -60,3 +65,4 @@ def db_check() -> dict[str, bool]:
     return {"database_connected": True}
 
 app.include_router(model_tools_router)
+app.include_router(rag_router)

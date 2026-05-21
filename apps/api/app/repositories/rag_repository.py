@@ -74,3 +74,84 @@ class RagRepository:
 
     def count_chunks(self) -> int:
         return self.db.scalar(select(func.count()).select_from(RagChunk)) or 0
+    
+
+    def list_chunks_missing_embeddings(self, limit: int = 500) -> list[RagChunk]:
+        statement = (
+            select(RagChunk)
+            .where(RagChunk.embedding.is_(None))
+            .order_by(RagChunk.id)
+            .limit(limit)
+        )
+
+        return list(self.db.scalars(statement).all())
+
+    def update_chunk_embedding(self, chunk_id: str, embedding: list[float]) -> None:
+        chunk = self.db.scalar(
+            select(RagChunk).where(RagChunk.chunk_id == chunk_id)
+        )
+
+        if chunk is None:
+            raise ValueError(f"Chunk not found: {chunk_id}")
+
+        chunk.embedding = embedding
+        self.db.add(chunk)
+
+    def count_chunks_missing_embeddings(self) -> int:
+        return (
+            self.db.scalar(
+                select(func.count())
+                .select_from(RagChunk)
+                .where(RagChunk.embedding.is_(None))
+            )
+            or 0
+        )
+
+    def count_chunks_with_embeddings(self) -> int:
+        return (
+            self.db.scalar(
+                select(func.count())
+                .select_from(RagChunk)
+                .where(RagChunk.embedding.is_not(None))
+            )
+            or 0
+        )
+    
+    def search_chunks_by_vector(
+        self,
+        query_embedding: list[float],
+        limit: int = 5,
+        final_label: str | None = None,
+    ) -> list[tuple[RagChunk, float]]:
+        """Search embedded chunks using cosine distance.
+
+        Lower distance is better.
+        """
+
+        distance = RagChunk.embedding.cosine_distance(query_embedding).label("distance")
+
+        statement = (
+            select(RagChunk, distance)
+            .where(RagChunk.embedding.is_not(None))
+            .order_by(distance)
+            .limit(limit)
+        )
+
+        if final_label:
+            statement = statement.where(RagChunk.final_label == final_label)
+
+        rows = self.db.execute(statement).all()
+
+        return [(row[0], float(row[1])) for row in rows]
+
+    def get_documents_by_doc_ids(
+        self,
+        doc_ids: list[str],
+    ) -> dict[str, RagDocument]:
+        if not doc_ids:
+            return {}
+
+        statement = select(RagDocument).where(RagDocument.doc_id.in_(doc_ids))
+        documents = self.db.scalars(statement).all()
+
+        return {document.doc_id: document for document in documents}

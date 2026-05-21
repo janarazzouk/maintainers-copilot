@@ -39,6 +39,14 @@ class Settings(BaseSettings):
         default="data/rag/rag_golden_draft.jsonl",
         alias="RAG_GOLDEN_PATH",
     )
+    embedding_model_name: str = Field(
+        default="BAAI/bge-small-en-v1.5",
+        alias="EMBEDDING_MODEL_NAME",
+    )
+    embedding_batch_size: int = Field(
+        default=32,
+        alias="EMBEDDING_BATCH_SIZE",
+    )
     
 
 
