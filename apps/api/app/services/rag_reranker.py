@@ -115,7 +115,9 @@ class LightweightTechnicalReranker:
         for match in re.findall(r"[`'\"]([^`'\"]{3,80})[`'\"]", question):
             terms.append(match)
 
-        return self._unique_preserve_order(terms)
+        return self._remove_generic_terms(
+            self._unique_preserve_order(terms)
+        )
 
     def _matched_terms(self, terms: list[str], text: str) -> list[str]:
         lower_text = text.lower()
@@ -176,3 +178,21 @@ class LightweightTechnicalReranker:
             unique.append(value)
 
         return unique
+    
+    def _remove_generic_terms(self, terms: list[str]) -> list[str]:
+        generic_terms = {
+            "node",
+            "node.js",
+            "nodejs",
+            "javascript",
+            "js",
+            "issue",
+            "bug",
+            "error",
+        }
+
+        return [
+            term
+            for term in terms
+            if term.lower().strip() not in generic_terms
+        ]

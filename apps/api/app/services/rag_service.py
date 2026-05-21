@@ -6,6 +6,10 @@ from app.infra.embeddings import EmbeddingModel
 from app.models.rag import RagChunk
 from app.repositories.rag_repository import RagRepository
 from app.schemas.rag import RagQueryRequest, RagQueryResponse, RagSource, RagTrace
+from app.services.rag_reranker import (
+    LightweightTechnicalReranker,
+    RerankedCandidate,
+)
 
 
 @dataclass(frozen=True)
@@ -20,17 +24,15 @@ class RagService:
     """Hybrid retrieval service for the RAG pipeline.
 
     Current version:
-    - embeds the question
-    - searches pgvector dense embeddings
-    - searches PostgreSQL full-text keyword index
-    - merges dense + keyword scores
-    - deduplicates by parent doc_id
-    - returns clean parent-document context previews
+    - dense vector search
+    - keyword search
+    - hybrid merge
+    - lightweight technical reranking
+    - parent-document retrieval
 
-    Later versions will add:
-    - cross-encoder reranking
+    Later:
     - multi-query rewriting
-    - LLM generation
+    - LLM answer generation
     """
 
     DENSE_WEIGHT = 0.60
@@ -43,6 +45,7 @@ class RagService:
     ) -> None:
         self.repository = RagRepository(db)
         self.embedding_model = embedding_model
+        self.reranker = LightweightTechnicalReranker()
 
     def query(self, payload: RagQueryRequest) -> RagQueryResponse:
         query_embedding = self.embedding_model.embed_query(payload.question)
@@ -66,8 +69,13 @@ class RagService:
             keyword_candidates=keyword_candidates,
         )
 
-        diversified = self._deduplicate_by_doc_id(
+        reranked_candidates = self.reranker.rerank(
+            question=payload.question,
             candidates=hybrid_candidates,
+        )
+
+        diversified = self._deduplicate_by_doc_id(
+            candidates=reranked_candidates,
             top_k=payload.top_k,
         )
 
@@ -92,6 +100,9 @@ class RagService:
                     final_label=chunk.final_label,
                     resolution_type=document.resolution_type if document else None,
                     score=round(candidate.score, 4),
+                    base_hybrid_score=round(candidate.base_score, 4),
+                    rerank_bonus=round(candidate.rerank_bonus, 4),
+                    matched_terms=candidate.matched_terms,
                     chunk_excerpt=self._excerpt(chunk.chunk_text, max_chars=650),
                     problem_summary_excerpt=(
                         self._excerpt(document.problem_summary, max_chars=650)
@@ -111,7 +122,10 @@ class RagService:
             sources=sources,
             trace=RagTrace(
                 original_question=payload.question,
-                candidate_chunk_count=len(hybrid_candidates),
+                retrieval_mode=(
+                    "hybrid_dense_keyword_with_lightweight_technical_reranking"
+                ),
+                candidate_chunk_count=len(reranked_candidates),
                 retrieved_chunk_ids=[source.chunk_id for source in sources],
                 retrieved_doc_ids=self._unique_doc_ids(
                     [source.doc_id for source in sources]
@@ -128,7 +142,6 @@ class RagService:
 
         Dense search returns cosine distance, where lower is better.
         Keyword search returns full-text rank, where higher is better.
-        We normalize both into 0..1 scores before combining them.
         """
 
         dense_scores: dict[str, float] = {}
@@ -137,8 +150,6 @@ class RagService:
 
         for chunk, distance in dense_candidates:
             chunks_by_id[chunk.chunk_id] = chunk
-
-            # Convert cosine distance to similarity.
             dense_scores[chunk.chunk_id] = max(0.0, 1.0 - float(distance))
 
         max_keyword_rank = max(
@@ -178,10 +189,10 @@ class RagService:
 
     def _deduplicate_by_doc_id(
         self,
-        candidates: list[HybridCandidate],
+        candidates: list[RerankedCandidate],
         top_k: int,
-    ) -> list[HybridCandidate]:
-        selected: list[HybridCandidate] = []
+    ) -> list[RerankedCandidate]:
+        selected: list[RerankedCandidate] = []
         seen_doc_ids: set[str] = set()
 
         for candidate in candidates:
@@ -210,8 +221,8 @@ class RagService:
         return (
             f"I found {len(sources)} relevant parent issue(s). "
             f"The top match is {issue_part}: {top.title}. "
-            "This endpoint is currently using hybrid retrieval "
-            "(dense vector search + keyword search). "
+            "This endpoint is currently using hybrid retrieval with "
+            "lightweight technical reranking. "
             "LLM answer generation will be added after retrieval evaluation."
         )
 

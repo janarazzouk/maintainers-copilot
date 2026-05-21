@@ -18,9 +18,12 @@ class RagSource(BaseModel):
     url: str
     final_label: str | None
     resolution_type: str | None
-    score: float
 
-    # Clean preview fields for the API response.
+    score: float
+    base_hybrid_score: float
+    rerank_bonus: float
+    matched_terms: list[str]
+
     chunk_excerpt: str
     problem_summary_excerpt: str | None
     maintainer_answer_excerpt: str | None
@@ -28,6 +31,7 @@ class RagSource(BaseModel):
 
 class RagTrace(BaseModel):
     original_question: str
+    retrieval_mode: str
     candidate_chunk_count: int
     retrieved_chunk_ids: list[str]
     retrieved_doc_ids: list[str]
