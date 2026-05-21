@@ -31,6 +31,7 @@ class RagSource(BaseModel):
 
 class RagTrace(BaseModel):
     original_question: str
+    generated_queries: list[str]
     retrieval_mode: str
     candidate_chunk_count: int
     retrieved_chunk_ids: list[str]

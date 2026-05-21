@@ -6,6 +6,7 @@ from app.infra.embeddings import EmbeddingModel
 from app.models.rag import RagChunk
 from app.repositories.rag_repository import RagRepository
 from app.schemas.rag import RagQueryRequest, RagQueryResponse, RagSource, RagTrace
+from app.services.rag_query_rewriter import RuleBasedMultiQueryRewriter
 from app.services.rag_reranker import (
     LightweightTechnicalReranker,
     RerankedCandidate,
@@ -21,18 +22,15 @@ class HybridCandidate:
 
 
 class RagService:
-    """Hybrid retrieval service for the RAG pipeline.
+    """RAG retrieval service.
 
     Current version:
+    - rule-based multi-query rewriting
     - dense vector search
     - keyword search
     - hybrid merge
     - lightweight technical reranking
     - parent-document retrieval
-
-    Later:
-    - multi-query rewriting
-    - LLM answer generation
     """
 
     DENSE_WEIGHT = 0.60
@@ -45,33 +43,32 @@ class RagService:
     ) -> None:
         self.repository = RagRepository(db)
         self.embedding_model = embedding_model
+        self.query_rewriter = RuleBasedMultiQueryRewriter()
         self.reranker = LightweightTechnicalReranker()
 
     def query(self, payload: RagQueryRequest) -> RagQueryResponse:
-        query_embedding = self.embedding_model.embed_query(payload.question)
+        generated_queries = self.query_rewriter.rewrite(payload.question)
 
         candidate_limit = max(payload.top_k * 6, 20)
 
-        dense_candidates = self.repository.search_chunks_by_vector(
-            query_embedding=query_embedding,
-            limit=candidate_limit,
-            final_label=payload.label_filter,
-        )
+        all_hybrid_candidates: list[HybridCandidate] = []
 
-        keyword_candidates = self.repository.search_chunks_by_keyword(
-            query_text=payload.question,
-            limit=candidate_limit,
-            final_label=payload.label_filter,
-        )
+        for search_query in generated_queries:
+            all_hybrid_candidates.extend(
+                self._retrieve_hybrid_candidates(
+                    search_query=search_query,
+                    candidate_limit=candidate_limit,
+                    label_filter=payload.label_filter,
+                )
+            )
 
-        hybrid_candidates = self._merge_hybrid_candidates(
-            dense_candidates=dense_candidates,
-            keyword_candidates=keyword_candidates,
+        merged_candidates = self._merge_candidates_across_queries(
+            all_hybrid_candidates
         )
 
         reranked_candidates = self.reranker.rerank(
             question=payload.question,
-            candidates=hybrid_candidates,
+            candidates=merged_candidates,
         )
 
         diversified = self._deduplicate_by_doc_id(
@@ -122,10 +119,11 @@ class RagService:
             sources=sources,
             trace=RagTrace(
                 original_question=payload.question,
+                generated_queries=generated_queries,
                 retrieval_mode=(
-                    "hybrid_dense_keyword_with_lightweight_technical_reranking"
+                    "multi_query_hybrid_dense_keyword_with_lightweight_technical_reranking"
                 ),
-                candidate_chunk_count=len(reranked_candidates),
+                candidate_chunk_count=len(merged_candidates),
                 retrieved_chunk_ids=[source.chunk_id for source in sources],
                 retrieved_doc_ids=self._unique_doc_ids(
                     [source.doc_id for source in sources]
@@ -133,17 +131,36 @@ class RagService:
             ),
         )
 
+    def _retrieve_hybrid_candidates(
+        self,
+        search_query: str,
+        candidate_limit: int,
+        label_filter: str | None,
+    ) -> list[HybridCandidate]:
+        query_embedding = self.embedding_model.embed_query(search_query)
+
+        dense_candidates = self.repository.search_chunks_by_vector(
+            query_embedding=query_embedding,
+            limit=candidate_limit,
+            final_label=label_filter,
+        )
+
+        keyword_candidates = self.repository.search_chunks_by_keyword(
+            query_text=search_query,
+            limit=candidate_limit,
+            final_label=label_filter,
+        )
+
+        return self._merge_hybrid_candidates(
+            dense_candidates=dense_candidates,
+            keyword_candidates=keyword_candidates,
+        )
+
     def _merge_hybrid_candidates(
         self,
         dense_candidates: list[tuple[RagChunk, float]],
         keyword_candidates: list[tuple[RagChunk, float]],
     ) -> list[HybridCandidate]:
-        """Merge dense and keyword candidates into one ranked list.
-
-        Dense search returns cosine distance, where lower is better.
-        Keyword search returns full-text rank, where higher is better.
-        """
-
         dense_scores: dict[str, float] = {}
         keyword_scores: dict[str, float] = {}
         chunks_by_id: dict[str, RagChunk] = {}
@@ -187,6 +204,29 @@ class RagService:
 
         return sorted(merged, key=lambda item: item.score, reverse=True)
 
+    def _merge_candidates_across_queries(
+        self,
+        candidates: list[HybridCandidate],
+    ) -> list[HybridCandidate]:
+        """Merge duplicated chunks retrieved by multiple rewritten queries.
+
+        If the same chunk appears from several queries, keep its best score.
+        """
+
+        best_by_chunk_id: dict[str, HybridCandidate] = {}
+
+        for candidate in candidates:
+            current = best_by_chunk_id.get(candidate.chunk.chunk_id)
+
+            if current is None or candidate.score > current.score:
+                best_by_chunk_id[candidate.chunk.chunk_id] = candidate
+
+        return sorted(
+            best_by_chunk_id.values(),
+            key=lambda item: item.score,
+            reverse=True,
+        )
+
     def _deduplicate_by_doc_id(
         self,
         candidates: list[RerankedCandidate],
@@ -221,8 +261,8 @@ class RagService:
         return (
             f"I found {len(sources)} relevant parent issue(s). "
             f"The top match is {issue_part}: {top.title}. "
-            "This endpoint is currently using hybrid retrieval with "
-            "lightweight technical reranking. "
+            "This endpoint is currently using multi-query hybrid retrieval "
+            "with lightweight technical reranking. "
             "LLM answer generation will be added after retrieval evaluation."
         )
 
