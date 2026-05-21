@@ -7,10 +7,16 @@ from app.infra.config import get_settings
 from app.infra.database import check_database_connection, init_database
 from app.infra.vault import VaultClient
 
+from app.api.routers.model_tools import router as model_tools_router
+from app.infra.model_server_client import ModelServerClient
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     settings = get_settings()
+    app.state.model_server_client = ModelServerClient(
+    base_url=settings.model_server_url,
+)
 
     vault = VaultClient(
         addr=settings.vault_addr,
@@ -23,6 +29,8 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     check_database_connection()
 
     app.state.secrets = app_secrets
+
+    
 
     yield
 
@@ -50,3 +58,5 @@ def secrets_check() -> dict[str, object]:
 def db_check() -> dict[str, bool]:
     check_database_connection()
     return {"database_connected": True}
+
+app.include_router(model_tools_router)

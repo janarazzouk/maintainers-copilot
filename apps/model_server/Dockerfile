@@ -10,6 +10,7 @@ RUN uv pip install --system -r pyproject.toml
 COPY app ./app
 COPY training ./training
 COPY models ./models
+COPY artifacts ./artifacts
 
 EXPOSE 8001
 
