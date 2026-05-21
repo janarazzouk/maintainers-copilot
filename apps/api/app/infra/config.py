@@ -27,6 +27,18 @@ class Settings(BaseSettings):
         default="http://127.0.0.1:8001",
         alias="MODEL_SERVER_URL",
     )
+    rag_corpus_path: str = Field(
+        default="data/rag/rag_issues_corpus.jsonl",
+        alias="RAG_CORPUS_PATH",
+    )
+    rag_chunks_path: str = Field(
+        default="data/rag/rag_issues_chunks.jsonl",
+        alias="RAG_CHUNKS_PATH",
+    )
+    rag_golden_path: str = Field(
+        default="data/rag/rag_golden_draft.jsonl",
+        alias="RAG_GOLDEN_PATH",
+    )
     
 
 
