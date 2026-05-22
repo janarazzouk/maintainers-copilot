@@ -50,6 +50,21 @@ class MemoryRepository:
         )
         return list(self.db.scalars(statement).all())
 
+    def find_exact_memory_for_user(
+        self,
+        *,
+        user_id: int,
+        normalized_content: str,
+    ) -> LongTermMemory | None:
+        memories = self.list_memories_for_user(user_id=user_id, limit=200)
+
+        for memory in memories:
+            existing_normalized = self._normalize_for_dedup(memory.redacted_content)
+            if existing_normalized == normalized_content:
+                return memory
+
+        return None
+
     def search_memories_for_user(
         self,
         *,
@@ -72,6 +87,31 @@ class MemoryRepository:
         rows = self.db.execute(statement).all()
         return [(row[0], float(row[1])) for row in rows]
 
+    def mark_duplicate_attempt(
+        self,
+        *,
+        memory: LongTermMemory,
+        duplicate_content: str,
+        duplicate_reason: str | None,
+        duplicate_similarity: float | None,
+    ) -> LongTermMemory:
+        metadata = dict(memory.memory_metadata or {})
+
+        duplicate_count = int(metadata.get("duplicate_attempt_count") or 0)
+        duplicate_count += 1
+
+        metadata["duplicate_attempt_count"] = duplicate_count
+        metadata["last_duplicate_content"] = duplicate_content
+        metadata["last_duplicate_reason"] = duplicate_reason
+        metadata["last_duplicate_similarity"] = duplicate_similarity
+        metadata["last_duplicate_at"] = datetime.utcnow().isoformat()
+
+        memory.memory_metadata = metadata
+        memory.updated_at = datetime.utcnow()
+
+        self.db.flush()
+        return memory
+
     def soft_delete_memory(
         self,
         *,
@@ -85,9 +125,13 @@ class MemoryRepository:
                 LongTermMemory.deleted_at.is_(None),
             )
         )
+
         if memory is None:
             return False
 
         memory.deleted_at = datetime.utcnow()
         self.db.flush()
         return True
+
+    def _normalize_for_dedup(self, text: str) -> str:
+        return " ".join(text.lower().strip().split())

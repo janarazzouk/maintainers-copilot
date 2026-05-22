@@ -17,6 +17,14 @@ class MemoryError(RuntimeError):
 
 
 class LongTermMemoryService:
+    # Similarity is 1 - cosine distance.
+    # 0.88 is strict enough to catch duplicates like:
+    # "changed-files-only patches preferred"
+    # and
+    # "The user prefers changed-files-only patches, not full project rewrites."
+    # without merging unrelated preferences too aggressively.
+    DEDUP_SIMILARITY_THRESHOLD = 0.88
+
     def __init__(
         self,
         *,
@@ -45,10 +53,49 @@ class LongTermMemoryService:
             raise MemoryError("memory_type must be semantic, episodic, or procedural.")
 
         redacted_content = redact_text(cleaned_content)
+        normalized_content = self._normalize_for_dedup(redacted_content)
         embedding = self._embed_text(redacted_content)
+
+        exact_duplicate = self.memories.find_exact_memory_for_user(
+            user_id=user.id,
+            normalized_content=normalized_content,
+        )
+        if exact_duplicate is not None:
+            memory = self.memories.mark_duplicate_attempt(
+                memory=exact_duplicate,
+                duplicate_content=redacted_content,
+                duplicate_reason=reason,
+                duplicate_similarity=1.0,
+            )
+            self.audit.create(
+                actor=user.email,
+                action="memory.write_duplicate_skipped",
+                target=f"memory:{memory.id}",
+            )
+            return memory
+
+        semantic_duplicate = self._find_semantic_duplicate(
+            user=user,
+            embedding=embedding,
+        )
+        if semantic_duplicate is not None:
+            memory, similarity = semantic_duplicate
+            memory = self.memories.mark_duplicate_attempt(
+                memory=memory,
+                duplicate_content=redacted_content,
+                duplicate_reason=reason,
+                duplicate_similarity=similarity,
+            )
+            self.audit.create(
+                actor=user.email,
+                action="memory.write_duplicate_skipped",
+                target=f"memory:{memory.id}",
+            )
+            return memory
 
         merged_metadata = {
             "reason": reason,
+            "dedup_similarity_threshold": self.DEDUP_SIMILARITY_THRESHOLD,
             **(metadata or {}),
         }
 
@@ -75,7 +122,10 @@ class LongTermMemoryService:
         user: User,
         limit: int = 50,
     ) -> list[LongTermMemory]:
-        return self.memories.list_memories_for_user(user_id=user.id, limit=limit)
+        return self.memories.list_memories_for_user(
+            user_id=user.id,
+            limit=limit,
+        )
 
     def search_memories(
         self,
@@ -88,6 +138,7 @@ class LongTermMemoryService:
             return []
 
         query_embedding = self._embed_text(redact_text(query))
+
         rows = self.memories.search_memories_for_user(
             user_id=user.id,
             query_embedding=query_embedding,
@@ -129,18 +180,36 @@ class LongTermMemoryService:
 
         return deleted
 
+    def _find_semantic_duplicate(
+        self,
+        *,
+        user: User,
+        embedding: list[float],
+    ) -> tuple[LongTermMemory, float] | None:
+        rows = self.memories.search_memories_for_user(
+            user_id=user.id,
+            query_embedding=embedding,
+            limit=5,
+        )
+
+        for memory, distance in rows:
+            similarity = 1.0 - distance
+            if similarity >= self.DEDUP_SIMILARITY_THRESHOLD:
+                return memory, round(similarity, 4)
+
+        return None
+
+    def _normalize_for_dedup(self, text: str) -> str:
+        return " ".join(text.lower().strip().split())
+
     def _embed_text(self, text: str) -> list[float]:
-        """Adapter around your existing EmbeddingModel.
-
-        This is intentionally defensive because different wrappers expose
-        embed(), embed_query(), encode(), etc.
-        """
-
         method_names = [
             "embed_query",
             "embed_text",
             "embed",
             "encode",
+            "embed_documents",
+            "embed_texts",
         ]
 
         last_error: Exception | None = None
@@ -169,11 +238,9 @@ class LongTermMemoryService:
         if hasattr(value, "tolist"):
             value = value.tolist()
 
-        # Generator from some embedding libraries.
         if not isinstance(value, list):
             value = list(value)
 
-        # Some libraries return [[...]] for one input.
         if value and isinstance(value[0], list):
             value = value[0]
 
