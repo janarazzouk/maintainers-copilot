@@ -3,6 +3,9 @@ from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user
 from app.infra.database import get_db
+from app.infra.embeddings import EmbeddingModel
+from app.infra.groq_client import GroqLLMClient
+from app.infra.model_server_client import ModelServerClient
 from app.infra.redis import RedisShortTermMemory
 from app.models.user import User
 from app.schemas.chat import (
@@ -12,6 +15,7 @@ from app.schemas.chat import (
     ConversationResponse,
 )
 from app.services.chat_service import ChatError, ChatService
+from app.services.tool_service import ToolService
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 
@@ -20,17 +24,42 @@ def get_short_term_memory(request: Request) -> RedisShortTermMemory:
     return request.app.state.short_term_memory
 
 
+def get_model_client(request: Request) -> ModelServerClient:
+    return request.app.state.model_server_client
+
+
+def get_embedding_model(request: Request) -> EmbeddingModel:
+    return request.app.state.embedding_model
+
+
+def get_llm_client(request: Request) -> GroqLLMClient | None:
+    return request.app.state.groq_llm_client
+
+
 @router.post("/message", response_model=ChatResponse)
-def send_chat_message(
+async def send_chat_message(
     payload: ChatRequest,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
     short_term_memory: RedisShortTermMemory = Depends(get_short_term_memory),
+    model_client: ModelServerClient = Depends(get_model_client),
+    embedding_model: EmbeddingModel = Depends(get_embedding_model),
+    llm_client: GroqLLMClient | None = Depends(get_llm_client),
 ) -> ChatResponse:
-    service = ChatService(db=db, short_term_memory=short_term_memory)
+    tool_service = ToolService(
+        db=db,
+        model_client=model_client,
+        embedding_model=embedding_model,
+        llm_client=llm_client,
+    )
+    service = ChatService(
+        db=db,
+        short_term_memory=short_term_memory,
+        tool_service=tool_service,
+    )
 
     try:
-        conversation_id, user_message, assistant_message, answer, recent_messages = service.handle_message(
+        conversation_id, user_message, assistant_message, answer, recent_messages = await service.handle_message(
             user=current_user,
             payload=payload,
         )
