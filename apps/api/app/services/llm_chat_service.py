@@ -32,11 +32,13 @@ class LLMChatService:
         user_message: str,
         repo: str | None,
         recent_messages: list[dict[str, Any]],
+        long_term_memories: list[dict[str, Any]],
     ) -> tuple[str, list[ToolResult]]:
         messages = self._build_initial_messages(
             user_message=user_message,
             repo=repo,
             recent_messages=recent_messages,
+            long_term_memories=long_term_memories,
         )
 
         try:
@@ -116,6 +118,7 @@ class LLMChatService:
         user_message: str,
         repo: str | None,
         recent_messages: list[dict[str, Any]],
+        long_term_memories: list[dict[str, Any]],
     ) -> list[dict[str, Any]]:
         messages: list[dict[str, Any]] = [
             {
@@ -123,6 +126,22 @@ class LLMChatService:
                 "content": self.system_prompt,
             }
         ]
+
+        if long_term_memories:
+            memory_lines = [
+                "Relevant long-term memory for this authenticated user:",
+            ]
+            for memory in long_term_memories:
+                memory_lines.append(
+                    f"- [{memory.get('memory_type')}] {memory.get('content')}"
+                )
+
+            messages.append(
+                {
+                    "role": "system",
+                    "content": "\n".join(memory_lines),
+                }
+            )
 
         for item in recent_messages[-8:]:
             role = item.get("role")
@@ -192,9 +211,7 @@ class LLMChatService:
             lines.append(
                 "- Say clearly that the retrieved evidence is weak or not directly related."
             )
-            lines.append(
-                "- Do not claim these are strong related resolved issues."
-            )
+            lines.append("- Do not claim these are strong related resolved issues.")
             lines.append(
                 "- Suggest using more specific repo docs/issues or asking for a reproduction."
             )

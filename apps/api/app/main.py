@@ -4,20 +4,21 @@ from typing import AsyncIterator
 from fastapi import FastAPI
 
 from app.api.routers.auth import router as auth_router
+from app.api.routers.chat import router as chat_router
+from app.api.routers.memory import router as memory_router
 from app.api.routers.model_tools import router as model_tools_router
 from app.api.routers.rag import router as rag_router
 from app.api.routers.widgets import admin_router as widget_admin_router
 from app.api.routers.widgets import public_router as widget_public_router
-from app.api.routers.chat import router as chat_router
-from app.infra.redis import RedisShortTermMemory
 from app.infra.config import get_settings
 from app.infra.database import check_database_connection, init_database
 from app.infra.embeddings import EmbeddingModel
 from app.infra.groq_client import GroqLLMClient
+from app.infra.groq_tool_client import GroqToolCallingClient
 from app.infra.minio import MinIOObjectStore
 from app.infra.model_server_client import ModelServerClient
+from app.infra.redis import RedisShortTermMemory
 from app.infra.vault import VaultClient, resolve_vault_token
-from app.infra.groq_tool_client import GroqToolCallingClient
 
 
 @asynccontextmanager
@@ -40,6 +41,12 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     object_store = MinIOObjectStore.from_secrets(app_secrets)
     object_store.ensure_bucket()
 
+    short_term_memory = RedisShortTermMemory(
+        redis_url=settings.redis_url,
+        ttl_seconds=settings.chat_short_term_ttl_seconds,
+    )
+    short_term_memory.ping()
+
     app.state.embedding_model = EmbeddingModel(
         model_name=settings.embedding_model_name,
         cache_dir=settings.embedding_cache_dir,
@@ -48,6 +55,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         base_url=settings.model_server_url,
     )
     app.state.object_store = object_store
+    app.state.short_term_memory = short_term_memory
     app.state.jwt_signing_key = str(jwt_signing_key)
     app.state.jwt_access_token_minutes = settings.jwt_access_token_minutes
     app.state.secrets = app_secrets
@@ -72,14 +80,6 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
             temperature=settings.groq_temperature,
             max_tokens=settings.groq_max_tokens,
         )
-
-        
-    short_term_memory = RedisShortTermMemory(
-        redis_url=settings.redis_url,
-        ttl_seconds=settings.chat_short_term_ttl_seconds,
-    )
-    short_term_memory.ping()
-    app.state.short_term_memory = short_term_memory    
 
     yield
 
@@ -130,3 +130,4 @@ app.include_router(rag_router)
 app.include_router(widget_admin_router)
 app.include_router(widget_public_router)
 app.include_router(chat_router)
+app.include_router(memory_router)

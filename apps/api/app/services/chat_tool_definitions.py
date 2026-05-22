@@ -5,22 +5,12 @@ CHAT_TOOLS: list[dict] = [
         "type": "function",
         "function": {
             "name": "classify_issue",
-            "description": (
-                "Classify an issue into one of the project labels such as bug, "
-                "feature, docs, or question. Use this when the user asks for triage "
-                "or issue type."
-            ),
+            "description": "Classify an issue into bug, feature, docs, or question.",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "title": {
-                        "type": "string",
-                        "description": "Short issue title.",
-                    },
-                    "body": {
-                        "type": "string",
-                        "description": "Full issue body or user-provided issue text.",
-                    },
+                    "title": {"type": "string"},
+                    "body": {"type": "string"},
                 },
                 "required": ["title", "body"],
                 "additionalProperties": False,
@@ -31,21 +21,12 @@ CHAT_TOOLS: list[dict] = [
         "type": "function",
         "function": {
             "name": "extract_entities",
-            "description": (
-                "Extract code-shaped entities from issue text, such as file paths, "
-                "function names, error codes, versions, packages, and stack-trace terms."
-            ),
+            "description": "Extract code-shaped entities such as file paths, functions, errors, and versions.",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "title": {
-                        "type": "string",
-                        "description": "Short issue title.",
-                    },
-                    "body": {
-                        "type": "string",
-                        "description": "Full issue body or user-provided issue text.",
-                    },
+                    "title": {"type": "string"},
+                    "body": {"type": "string"},
                 },
                 "required": ["title", "body"],
                 "additionalProperties": False,
@@ -56,21 +37,12 @@ CHAT_TOOLS: list[dict] = [
         "type": "function",
         "function": {
             "name": "summarize_thread",
-            "description": (
-                "Summarize a long issue, thread, or maintainer conversation. "
-                "Use only when the user asks for a summary or the text is long."
-            ),
+            "description": "Summarize a long issue, thread, or maintainer conversation.",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "title": {
-                        "type": "string",
-                        "description": "Issue title or summary title.",
-                    },
-                    "body": {
-                        "type": "string",
-                        "description": "Issue body, thread, or long text to summarize.",
-                    },
+                    "title": {"type": "string"},
+                    "body": {"type": "string"},
                 },
                 "required": ["title", "body"],
                 "additionalProperties": False,
@@ -81,23 +53,16 @@ CHAT_TOOLS: list[dict] = [
         "type": "function",
         "function": {
             "name": "rag_search",
-            "description": (
-                "Search the project's docs and resolved issues for relevant evidence. "
-                "Use this when the user asks for related issues, fixes, explanations, "
-                "maintainer answers, or grounded project knowledge."
-            ),
+            "description": "Search project docs and resolved issues for relevant evidence.",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "question": {
-                        "type": "string",
-                        "description": "The search question.",
-                    },
+                    "question": {"type": "string"},
                     "top_k": {
                         "type": "integer",
-                        "description": "Number of results to retrieve. Default 5.",
                         "minimum": 1,
                         "maximum": 10,
+                        "default": 5,
                     },
                     "label_filter": {
                         "type": ["string", "null"],
@@ -105,6 +70,38 @@ CHAT_TOOLS: list[dict] = [
                     },
                 },
                 "required": ["question"],
+                "additionalProperties": False,
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "write_memory",
+            "description": (
+                "Write durable long-term memory for the authenticated user. "
+                "Only call this tool when the user explicitly asks to remember, store, save, or note something "
+                "for future conversations, or when the user states a durable preference using wording like "
+                "'from now on' or 'going forward'. Never store secrets, API keys, passwords, tokens, or temporary facts."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "memory_type": {
+                        "type": "string",
+                        "enum": ["semantic", "episodic", "procedural"],
+                        "default": "semantic",
+                    },
+                    "content": {
+                        "type": "string",
+                        "description": "The durable memory to store.",
+                    },
+                    "reason": {
+                        "type": ["string", "null"],
+                        "description": "Why this memory is useful in future conversations.",
+                    },
+                },
+                "required": ["memory_type", "content"],
                 "additionalProperties": False,
             },
         },

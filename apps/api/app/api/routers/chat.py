@@ -18,6 +18,7 @@ from app.schemas.chat import (
 )
 from app.services.chat_service import ChatError, ChatService
 from app.services.llm_chat_service import LLMChatService
+from app.services.memory_service import LongTermMemoryService
 from app.services.rag_snapshot_service import RagSnapshotService
 from app.services.tool_service import ToolService
 
@@ -60,12 +61,20 @@ async def send_chat_message(
     groq_tool_client: GroqToolCallingClient | None = Depends(get_groq_tool_client),
     object_store: MinIOObjectStore = Depends(get_object_store),
 ) -> ChatResponse:
+    memory_service = LongTermMemoryService(
+        db=db,
+        embedding_model=embedding_model,
+    )
+
     tool_service = ToolService(
         db=db,
         model_client=model_client,
         embedding_model=embedding_model,
         llm_client=llm_client,
+        current_user=current_user,
+        memory_service=memory_service,
     )
+
     rag_snapshot_service = RagSnapshotService(object_store=object_store)
 
     llm_chat_service = None
@@ -81,6 +90,7 @@ async def send_chat_message(
         tool_service=tool_service,
         rag_snapshot_service=rag_snapshot_service,
         llm_chat_service=llm_chat_service,
+        memory_service=memory_service,
     )
 
     try:
@@ -109,7 +119,10 @@ def list_conversations(
     current_user: User = Depends(get_current_user),
     short_term_memory: RedisShortTermMemory = Depends(get_short_term_memory),
 ) -> list[ConversationResponse]:
-    service = ChatService(db=db, short_term_memory=short_term_memory)
+    service = ChatService(
+        db=db,
+        short_term_memory=short_term_memory,
+    )
     conversations = service.list_conversations(user=current_user)
     return [ConversationResponse.model_validate(item) for item in conversations]
 
@@ -121,7 +134,10 @@ def list_messages(
     current_user: User = Depends(get_current_user),
     short_term_memory: RedisShortTermMemory = Depends(get_short_term_memory),
 ) -> list[ChatMessageResponse]:
-    service = ChatService(db=db, short_term_memory=short_term_memory)
+    service = ChatService(
+        db=db,
+        short_term_memory=short_term_memory,
+    )
 
     try:
         messages = service.get_messages_for_conversation(
@@ -144,7 +160,10 @@ def delete_conversation(
     current_user: User = Depends(get_current_user),
     short_term_memory: RedisShortTermMemory = Depends(get_short_term_memory),
 ) -> None:
-    service = ChatService(db=db, short_term_memory=short_term_memory)
+    service = ChatService(
+        db=db,
+        short_term_memory=short_term_memory,
+    )
 
     try:
         service.soft_delete_conversation(

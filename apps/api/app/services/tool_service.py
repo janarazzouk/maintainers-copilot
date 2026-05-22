@@ -9,7 +9,9 @@ from sqlalchemy.orm import Session
 from app.infra.embeddings import EmbeddingModel
 from app.infra.groq_client import GroqLLMClient
 from app.infra.model_server_client import ModelServerClient, ModelServerError
+from app.models.user import User
 from app.schemas.rag import RagQueryRequest
+from app.services.memory_service import LongTermMemoryService, MemoryError
 from app.services.rag_service import RagService
 
 
@@ -31,11 +33,15 @@ class ToolService:
         model_client: ModelServerClient,
         embedding_model: EmbeddingModel,
         llm_client: GroqLLMClient | None,
+        current_user: User | None = None,
+        memory_service: LongTermMemoryService | None = None,
     ) -> None:
         self.db = db
         self.model_client = model_client
         self.embedding_model = embedding_model
         self.llm_client = llm_client
+        self.current_user = current_user
+        self.memory_service = memory_service
 
     async def execute_chat_tool(
         self,
@@ -60,6 +66,7 @@ class ToolService:
         if tool_name == "rag_search":
             question = str(arguments.get("question") or fallback_message)
             raw_top_k = arguments.get("top_k", 5)
+
             try:
                 top_k = max(1, min(int(raw_top_k), 10))
             except (TypeError, ValueError):
@@ -74,6 +81,9 @@ class ToolService:
                 top_k=top_k,
                 label_filter=label_filter,
             )
+
+        if tool_name == "write_memory":
+            return self.write_memory(arguments=arguments)
 
         return ToolResult(
             tool_name=tool_name,
@@ -190,17 +200,61 @@ class ToolService:
                 start=start,
             )
 
+    def write_memory(self, *, arguments: dict[str, Any]) -> ToolResult:
+        input_json = dict(arguments)
+        start = perf_counter()
+
+        if self.current_user is None or self.memory_service is None:
+            return self._failure(
+                tool_name="write_memory",
+                input_json=input_json,
+                error=MemoryError("Memory service is not configured."),
+                start=start,
+            )
+
+        memory_type = str(arguments.get("memory_type") or "semantic")
+        content = str(arguments.get("content") or "").strip()
+
+        reason = arguments.get("reason")
+        if reason is not None:
+            reason = str(reason)
+
+        try:
+            memory = self.memory_service.write_memory(
+                user=self.current_user,
+                memory_type=memory_type,
+                content=content,
+                reason=reason,
+                metadata={
+                    "source": "write_memory_tool",
+                },
+            )
+
+            return self._success(
+                tool_name="write_memory",
+                input_json=input_json,
+                output_json={
+                    "memory_id": memory.id,
+                    "memory_type": memory.memory_type,
+                    "content": memory.redacted_content,
+                    "stored": True,
+                },
+                start=start,
+            )
+        except MemoryError as exc:
+            return self._failure(
+                tool_name="write_memory",
+                input_json=input_json,
+                error=exc,
+                start=start,
+            )
+
     async def run_triage_tools(
         self,
         *,
         message: str,
         repo: str | None,
     ) -> list[ToolResult]:
-        """Fallback deterministic tool plan.
-
-        Used only if Groq tool-calling is unavailable.
-        """
-
         title = self._title_from_message(message)
         body = message
 

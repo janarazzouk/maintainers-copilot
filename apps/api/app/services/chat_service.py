@@ -6,10 +6,11 @@ from app.models.user import User
 from app.repositories.chat_repository import ChatRepository
 from app.schemas.chat import ChatRequest
 from app.services.llm_chat_service import LLMChatError, LLMChatService
+from app.services.memory_service import LongTermMemoryService
 from app.services.rag_snapshot_service import RagSnapshotService
 from app.services.tool_service import ToolResult, ToolService
 
-#Chat service now asks the LLM to choose tools. If Groq is unavailable, it falls back to your deterministic Step 2 plan.
+
 class ChatError(RuntimeError):
     pass
 
@@ -23,12 +24,14 @@ class ChatService:
         tool_service: ToolService | None = None,
         rag_snapshot_service: RagSnapshotService | None = None,
         llm_chat_service: LLMChatService | None = None,
+        memory_service: LongTermMemoryService | None = None,
     ) -> None:
         self.db = db
         self.short_term_memory = short_term_memory
         self.tool_service = tool_service
         self.rag_snapshot_service = rag_snapshot_service
         self.llm_chat_service = llm_chat_service
+        self.memory_service = memory_service
         self.chat_repo = ChatRepository(db)
 
     def _make_title(self, message: str) -> str:
@@ -101,7 +104,17 @@ class ChatService:
     ) -> tuple[int, object, object, str, list[dict]]:
         conversation = self._get_or_create_conversation(user=user, payload=payload)
 
-        existing_recent_messages = self.short_term_memory.get_recent_messages(conversation.id)
+        existing_recent_messages = self.short_term_memory.get_recent_messages(
+            conversation.id
+        )
+
+        long_term_memories: list[dict] = []
+        if self.memory_service is not None:
+            long_term_memories = self.memory_service.search_memories(
+                user=user,
+                query=payload.message,
+                limit=5,
+            )
 
         user_message = self.chat_repo.create_message(
             conversation_id=conversation.id,
@@ -123,6 +136,7 @@ class ChatService:
             message=payload.message,
             repo=payload.repo,
             recent_messages=existing_recent_messages,
+            long_term_memories=long_term_memories,
         )
 
         for result in tool_results:
@@ -192,6 +206,7 @@ class ChatService:
         message: str,
         repo: str | None,
         recent_messages: list[dict],
+        long_term_memories: list[dict],
     ) -> tuple[str, list[ToolResult], str]:
         if self.llm_chat_service is not None:
             try:
@@ -199,6 +214,7 @@ class ChatService:
                     user_message=message,
                     repo=repo,
                     recent_messages=recent_messages,
+                    long_term_memories=long_term_memories,
                 )
                 return answer, tool_results, "groq_tool_calling_llm"
             except LLMChatError as exc:
@@ -206,6 +222,7 @@ class ChatService:
                     "The Groq tool-calling LLM was unavailable, so I fell back to the "
                     f"backend deterministic triage tools. LLM error: {exc}"
                 )
+
                 if self.tool_service is None:
                     return fallback_note, [], "llm_unavailable_no_tools"
 
@@ -213,6 +230,7 @@ class ChatService:
                     message=message,
                     repo=repo,
                 )
+
                 return (
                     fallback_note + "\n\n" + self._build_fallback_answer(tool_results),
                     tool_results,
@@ -224,7 +242,11 @@ class ChatService:
                 message=message,
                 repo=repo,
             )
-            return self._build_fallback_answer(tool_results), tool_results, "deterministic_tool_fallback"
+            return (
+                self._build_fallback_answer(tool_results),
+                tool_results,
+                "deterministic_tool_fallback",
+            )
 
         return (
             "I saved your message, but no LLM or tools are currently configured.",
@@ -247,6 +269,8 @@ class ChatService:
                 lines.append(self._format_rag(result))
             elif result.tool_name == "summarize_thread":
                 lines.append(self._format_summary(result))
+            elif result.tool_name == "write_memory":
+                lines.append(self._format_memory_write(result))
 
         failed_tools = [result for result in tool_results if result.status != "success"]
         if failed_tools:
@@ -329,3 +353,13 @@ class ChatService:
             return "- Summary: summarizer returned no summary field."
 
         return f"- Summary: {summary}"
+
+    def _format_memory_write(self, result: ToolResult) -> str:
+        if result.status != "success":
+            return "- Memory: unavailable."
+
+        content = result.output_json.get("content")
+        if content:
+            return f"- Memory: remembered `{content}`."
+
+        return "- Memory: remembered successfully."
