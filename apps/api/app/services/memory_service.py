@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from typing import Any
 
 from sqlalchemy.orm import Session
@@ -18,12 +19,36 @@ class MemoryError(RuntimeError):
 
 class LongTermMemoryService:
     # Similarity is 1 - cosine distance.
-    # 0.88 is strict enough to catch duplicates like:
-    # "changed-files-only patches preferred"
-    # and
-    # "The user prefers changed-files-only patches, not full project rewrites."
-    # without merging unrelated preferences too aggressively.
-    DEDUP_SIMILARITY_THRESHOLD = 0.88
+    # 0.82 is more practical than 0.88 for short preference memories.
+    DEDUP_SIMILARITY_THRESHOLD = 0.82
+
+    # Token overlap catches wording variants that embeddings may miss, such as:
+    # "changed-files-only patches" vs "only changed files when receiving code fixes"
+    DEDUP_TOKEN_OVERLAP_THRESHOLD = 0.45
+
+    STOPWORDS = {
+        "the",
+        "a",
+        "an",
+        "and",
+        "or",
+        "to",
+        "for",
+        "of",
+        "in",
+        "on",
+        "when",
+        "with",
+        "this",
+        "that",
+        "is",
+        "are",
+        "be",
+        "by",
+        "as",
+        "it",
+        "not",
+    }
 
     def __init__(
         self,
@@ -74,18 +99,24 @@ class LongTermMemoryService:
             )
             return memory
 
-        semantic_duplicate = self._find_semantic_duplicate(
+        hybrid_duplicate = self._find_hybrid_duplicate(
             user=user,
+            redacted_content=redacted_content,
             embedding=embedding,
         )
-        if semantic_duplicate is not None:
-            memory, similarity = semantic_duplicate
+        if hybrid_duplicate is not None:
+            memory, similarity, method = hybrid_duplicate
             memory = self.memories.mark_duplicate_attempt(
                 memory=memory,
                 duplicate_content=redacted_content,
                 duplicate_reason=reason,
                 duplicate_similarity=similarity,
             )
+
+            metadata_copy = dict(memory.memory_metadata or {})
+            metadata_copy["last_duplicate_method"] = method
+            memory.memory_metadata = metadata_copy
+
             self.audit.create(
                 actor=user.email,
                 action="memory.write_duplicate_skipped",
@@ -96,6 +127,7 @@ class LongTermMemoryService:
         merged_metadata = {
             "reason": reason,
             "dedup_similarity_threshold": self.DEDUP_SIMILARITY_THRESHOLD,
+            "dedup_token_overlap_threshold": self.DEDUP_TOKEN_OVERLAP_THRESHOLD,
             **(metadata or {}),
         }
 
@@ -180,27 +212,69 @@ class LongTermMemoryService:
 
         return deleted
 
-    def _find_semantic_duplicate(
+    def _find_hybrid_duplicate(
         self,
         *,
         user: User,
+        redacted_content: str,
         embedding: list[float],
-    ) -> tuple[LongTermMemory, float] | None:
+    ) -> tuple[LongTermMemory, float, str] | None:
         rows = self.memories.search_memories_for_user(
             user_id=user.id,
             query_embedding=embedding,
-            limit=5,
+            limit=10,
         )
 
+        best_token_match: tuple[LongTermMemory, float] | None = None
+
         for memory, distance in rows:
-            similarity = 1.0 - distance
-            if similarity >= self.DEDUP_SIMILARITY_THRESHOLD:
-                return memory, round(similarity, 4)
+            vector_similarity = 1.0 - distance
+            if vector_similarity >= self.DEDUP_SIMILARITY_THRESHOLD:
+                return memory, round(vector_similarity, 4), "vector_similarity"
+
+            token_overlap = self._token_overlap_similarity(
+                redacted_content,
+                memory.redacted_content,
+            )
+
+            if best_token_match is None or token_overlap > best_token_match[1]:
+                best_token_match = (memory, token_overlap)
+
+        if best_token_match is not None:
+            memory, token_overlap = best_token_match
+            if token_overlap >= self.DEDUP_TOKEN_OVERLAP_THRESHOLD:
+                return memory, round(token_overlap, 4), "token_overlap"
 
         return None
 
+    def _token_overlap_similarity(self, left: str, right: str) -> float:
+        left_tokens = self._content_tokens(left)
+        right_tokens = self._content_tokens(right)
+
+        if not left_tokens or not right_tokens:
+            return 0.0
+
+        intersection = left_tokens.intersection(right_tokens)
+        smaller_size = min(len(left_tokens), len(right_tokens))
+
+        return len(intersection) / smaller_size
+
+    def _content_tokens(self, text: str) -> set[str]:
+        normalized = text.lower()
+        normalized = normalized.replace("-", " ")
+        tokens = re.findall(r"[a-z0-9_]+", normalized)
+
+        return {
+            token
+            for token in tokens
+            if token not in self.STOPWORDS and len(token) >= 3
+        }
+
     def _normalize_for_dedup(self, text: str) -> str:
-        return " ".join(text.lower().strip().split())
+        normalized = text.lower().strip()
+        normalized = normalized.replace("-", " ")
+        normalized = re.sub(r"\s+", " ", normalized)
+        return normalized
 
     def _embed_text(self, text: str) -> list[float]:
         method_names = [
