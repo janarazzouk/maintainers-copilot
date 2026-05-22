@@ -17,6 +17,9 @@ class Settings(BaseSettings):
     redis_url: str | None = None
     api_url: str | None = None
 
+    vault_token: str | None = Field(default=None, alias="VAULT_TOKEN")
+    vault_token_file: str | None = Field(default=None, alias="VAULT_TOKEN_FILE")
+
    
 
     model_config = SettingsConfigDict(

@@ -15,7 +15,7 @@ from app.models.rag import RagChunk
 from app.repositories.rag_repository import RagRepository
 from app.schemas.rag import RagQueryRequest
 from app.services.rag_service import RagService
-
+from app.infra.vault import resolve_vault_token
 
 DENSE_WEIGHT = 0.60
 KEYWORD_WEIGHT = 0.40
@@ -517,7 +517,7 @@ def _resolve_database_url(settings) -> str:
     try:
         vault = VaultClient(
             addr=settings.vault_addr,
-            token=settings.vault_dev_root_token_id,
+            token=resolve_vault_token(settings),
         )
         secrets = vault.read_app_secrets()
         database_url = secrets.get("database_url")

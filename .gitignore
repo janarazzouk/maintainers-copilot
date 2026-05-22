@@ -12,3 +12,4 @@ mlruns/
 node_modules/
 dist/
 apps/model_server/artifacts/
+.secrets/

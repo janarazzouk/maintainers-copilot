@@ -1,5 +1,5 @@
 from typing import Any
-
+from pathlib import Path
 import hvac
 
 
@@ -29,3 +29,19 @@ class VaultClient:
             return dict(response["data"]["data"])
         except Exception as exc:
             raise VaultError("Failed to read secret/app from Vault.") from exc
+        
+def resolve_vault_token(settings: Any) -> str:
+    token_file = getattr(settings, "vault_token_file", None)
+
+    if token_file:
+        path = Path(token_file)
+        if path.exists():
+            token = path.read_text(encoding="utf-8").strip()
+            if token:
+                return token
+
+    token = getattr(settings, "vault_token", None)
+    if token:
+        return str(token)
+
+    return str(settings.vault_dev_root_token_id)

@@ -5,7 +5,7 @@ from fastapi import FastAPI
 
 from app.infra.config import get_settings
 from app.infra.database import check_database_connection, init_database
-from app.infra.vault import VaultClient
+
 
 from app.api.routers.model_tools import router as model_tools_router
 from app.infra.model_server_client import ModelServerClient
@@ -13,6 +13,7 @@ from app.infra.model_server_client import ModelServerClient
 from app.api.routers.rag import router as rag_router
 from app.infra.embeddings import EmbeddingModel
 from app.infra.groq_client import GroqLLMClient
+from app.infra.vault import VaultClient, resolve_vault_token
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
@@ -27,7 +28,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
     vault = VaultClient(
         addr=settings.vault_addr,
-        token=settings.vault_dev_root_token_id,
+        token=resolve_vault_token(settings),
     )
 
     app_secrets = vault.read_app_secrets()

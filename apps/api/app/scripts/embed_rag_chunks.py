@@ -5,7 +5,7 @@ from app.infra.database import get_db, init_database
 from app.infra.embeddings import EmbeddingModel
 from app.infra.vault import VaultClient, VaultError
 from app.services.rag_embedding_service import RagEmbeddingService
-
+from app.infra.vault import resolve_vault_token
 
 def main() -> None:
     settings = get_settings()
@@ -44,7 +44,7 @@ def _resolve_database_url(settings) -> str:
     try:
         vault = VaultClient(
             addr=settings.vault_addr,
-            token=settings.vault_dev_root_token_id,
+            token=resolve_vault_token(settings),
         )
         secrets = vault.read_app_secrets()
         database_url = secrets.get("database_url")
