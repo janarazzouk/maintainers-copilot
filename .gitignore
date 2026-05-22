@@ -2,6 +2,8 @@
 __pycache__/
 *.pyc
 .env
+.env.*
+!.env.example
 data/raw/*
 data/processed/*
 data/splits/*
@@ -9,3 +11,4 @@ mlruns/
 .DS_Store
 node_modules/
 dist/
+apps/model_server/artifacts/
