@@ -3,39 +3,54 @@ from typing import AsyncIterator
 
 from fastapi import FastAPI
 
+from app.api.routers.auth import router as auth_router
+from app.api.routers.model_tools import router as model_tools_router
+from app.api.routers.rag import router as rag_router
+from app.api.routers.widgets import admin_router as widget_admin_router
+from app.api.routers.widgets import public_router as widget_public_router
 from app.infra.config import get_settings
 from app.infra.database import check_database_connection, init_database
-
-
-from app.api.routers.model_tools import router as model_tools_router
-from app.infra.model_server_client import ModelServerClient
-
-from app.api.routers.rag import router as rag_router
 from app.infra.embeddings import EmbeddingModel
 from app.infra.groq_client import GroqLLMClient
+from app.infra.minio import MinIOObjectStore
+from app.infra.model_server_client import ModelServerClient
 from app.infra.vault import VaultClient, resolve_vault_token
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     settings = get_settings()
-    app.state.embedding_model = EmbeddingModel(
-                                model_name=settings.embedding_model_name,
-                                cache_dir=settings.embedding_cache_dir,
-                            )
-    app.state.model_server_client = ModelServerClient(
-    base_url=settings.model_server_url,
-)
 
     vault = VaultClient(
         addr=settings.vault_addr,
         token=resolve_vault_token(settings),
     )
-
     app_secrets = vault.read_app_secrets()
+
+    jwt_signing_key = app_secrets.get("jwt_signing_key")
+    if not jwt_signing_key:
+        raise RuntimeError("Vault secret/app is missing jwt_signing_key.")
+
+    init_database(str(app_secrets["database_url"]))
+    check_database_connection()
+
+    object_store = MinIOObjectStore.from_secrets(app_secrets)
+    object_store.ensure_bucket()
+
+    app.state.embedding_model = EmbeddingModel(
+        model_name=settings.embedding_model_name,
+        cache_dir=settings.embedding_cache_dir,
+    )
+    app.state.model_server_client = ModelServerClient(
+        base_url=settings.model_server_url,
+    )
+    app.state.object_store = object_store
+    app.state.jwt_signing_key = str(jwt_signing_key)
+    app.state.jwt_access_token_minutes = settings.jwt_access_token_minutes
+    app.state.secrets = app_secrets
+
     groq_api_key = app_secrets.get("groq_api_key")
-
     app.state.groq_llm_client = None
-
     if groq_api_key:
         app.state.groq_llm_client = GroqLLMClient(
             api_key=str(groq_api_key),
@@ -44,13 +59,6 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
             temperature=settings.groq_temperature,
             max_tokens=settings.groq_max_tokens,
         )
-
-    init_database(app_secrets["database_url"])
-    check_database_connection()
-
-    app.state.secrets = app_secrets
-
-    
 
     yield
 
@@ -79,5 +87,15 @@ def db_check() -> dict[str, bool]:
     check_database_connection()
     return {"database_connected": True}
 
+
+@app.get("/debug/minio-check")
+def minio_check() -> dict[str, object]:
+    app.state.object_store.ensure_bucket()
+    return {"minio_connected": True, "bucket": app.state.object_store.bucket}
+
+
+app.include_router(auth_router)
 app.include_router(model_tools_router)
 app.include_router(rag_router)
+app.include_router(widget_admin_router)
+app.include_router(widget_public_router)

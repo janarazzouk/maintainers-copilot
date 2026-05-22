@@ -1,0 +1,18 @@
+[
+  {
+    "local_path": "apps/model_server/artifacts",
+    "object_key": "artifacts/model-server"
+  },
+  {
+    "local_path": "apps/api/data/rag/rag_eval_report.json",
+    "object_key": "evals/rag/rag_eval_report.json"
+  },
+  {
+    "local_path": "apps/api/data/rag/rag_golden_draft.jsonl",
+    "object_key": "evals/rag/rag_golden_draft.jsonl"
+  },
+  {
+    "local_path": "apps/api/eval_thresholds.yaml",
+    "object_key": "evals/eval_thresholds.yaml"
+  }
+]
