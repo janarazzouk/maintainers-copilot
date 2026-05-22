@@ -17,6 +17,7 @@ from app.infra.groq_client import GroqLLMClient
 from app.infra.minio import MinIOObjectStore
 from app.infra.model_server_client import ModelServerClient
 from app.infra.vault import VaultClient, resolve_vault_token
+from app.infra.groq_tool_client import GroqToolCallingClient
 
 
 @asynccontextmanager
@@ -53,6 +54,8 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
     groq_api_key = app_secrets.get("groq_api_key")
     app.state.groq_llm_client = None
+    app.state.groq_tool_client = None
+
     if groq_api_key:
         app.state.groq_llm_client = GroqLLMClient(
             api_key=str(groq_api_key),
@@ -62,6 +65,15 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
             max_tokens=settings.groq_max_tokens,
         )
 
+        app.state.groq_tool_client = GroqToolCallingClient(
+            api_key=str(groq_api_key),
+            base_url=settings.groq_base_url,
+            model=settings.groq_model,
+            temperature=settings.groq_temperature,
+            max_tokens=settings.groq_max_tokens,
+        )
+
+        
     short_term_memory = RedisShortTermMemory(
         redis_url=settings.redis_url,
         ttl_seconds=settings.chat_short_term_ttl_seconds,

@@ -5,10 +5,11 @@ from app.models.chat import Conversation
 from app.models.user import User
 from app.repositories.chat_repository import ChatRepository
 from app.schemas.chat import ChatRequest
+from app.services.llm_chat_service import LLMChatError, LLMChatService
 from app.services.rag_snapshot_service import RagSnapshotService
 from app.services.tool_service import ToolResult, ToolService
 
-
+#Chat service now asks the LLM to choose tools. If Groq is unavailable, it falls back to your deterministic Step 2 plan.
 class ChatError(RuntimeError):
     pass
 
@@ -21,11 +22,13 @@ class ChatService:
         short_term_memory: RedisShortTermMemory,
         tool_service: ToolService | None = None,
         rag_snapshot_service: RagSnapshotService | None = None,
+        llm_chat_service: LLMChatService | None = None,
     ) -> None:
         self.db = db
         self.short_term_memory = short_term_memory
         self.tool_service = tool_service
         self.rag_snapshot_service = rag_snapshot_service
+        self.llm_chat_service = llm_chat_service
         self.chat_repo = ChatRepository(db)
 
     def _make_title(self, message: str) -> str:
@@ -98,6 +101,8 @@ class ChatService:
     ) -> tuple[int, object, object, str, list[dict]]:
         conversation = self._get_or_create_conversation(user=user, payload=payload)
 
+        existing_recent_messages = self.short_term_memory.get_recent_messages(conversation.id)
+
         user_message = self.chat_repo.create_message(
             conversation_id=conversation.id,
             role="user",
@@ -114,12 +119,11 @@ class ChatService:
             content=payload.message,
         )
 
-        tool_results: list[ToolResult] = []
-        if self.tool_service is not None:
-            tool_results = await self.tool_service.run_triage_tools(
-                message=payload.message,
-                repo=payload.repo,
-            )
+        answer, tool_results, mode = await self._generate_answer(
+            message=payload.message,
+            repo=payload.repo,
+            recent_messages=existing_recent_messages,
+        )
 
         for result in tool_results:
             self.chat_repo.create_tool_call(
@@ -133,14 +137,12 @@ class ChatService:
                 latency_ms=result.latency_ms,
             )
 
-        answer = self._build_step2_answer(tool_results)
-
         assistant_message = self.chat_repo.create_message(
             conversation_id=conversation.id,
             role="assistant",
             content=answer,
             message_metadata={
-                "mode": "step_2_tool_service_smoke_test",
+                "mode": mode,
                 "tools_run": [
                     {
                         "tool_name": result.tool_name,
@@ -184,33 +186,67 @@ class ChatService:
 
         return conversation.id, user_message, assistant_message, answer, recent_messages
 
-    def _build_step2_answer(self, tool_results: list[ToolResult]) -> str:
-        if not tool_results:
-            return (
-                "I saved your message and conversation state. "
-                "No tools were available for this request yet."
+    async def _generate_answer(
+        self,
+        *,
+        message: str,
+        repo: str | None,
+        recent_messages: list[dict],
+    ) -> tuple[str, list[ToolResult], str]:
+        if self.llm_chat_service is not None:
+            try:
+                answer, tool_results = await self.llm_chat_service.answer_with_tools(
+                    user_message=message,
+                    repo=repo,
+                    recent_messages=recent_messages,
+                )
+                return answer, tool_results, "groq_tool_calling_llm"
+            except LLMChatError as exc:
+                fallback_note = (
+                    "The Groq tool-calling LLM was unavailable, so I fell back to the "
+                    f"backend deterministic triage tools. LLM error: {exc}"
+                )
+                if self.tool_service is None:
+                    return fallback_note, [], "llm_unavailable_no_tools"
+
+                tool_results = await self.tool_service.run_triage_tools(
+                    message=message,
+                    repo=repo,
+                )
+                return (
+                    fallback_note + "\n\n" + self._build_fallback_answer(tool_results),
+                    tool_results,
+                    "deterministic_tool_fallback",
+                )
+
+        if self.tool_service is not None:
+            tool_results = await self.tool_service.run_triage_tools(
+                message=message,
+                repo=repo,
             )
+            return self._build_fallback_answer(tool_results), tool_results, "deterministic_tool_fallback"
 
-        lines: list[str] = [
-            "I ran the backend triage tools for this message.",
-            "",
-        ]
+        return (
+            "I saved your message, but no LLM or tools are currently configured.",
+            [],
+            "no_llm_no_tools",
+        )
 
-        classify_result = self._find_tool(tool_results, "classify_issue")
-        if classify_result is not None:
-            lines.append(self._format_classification(classify_result))
+    def _build_fallback_answer(self, tool_results: list[ToolResult]) -> str:
+        if not tool_results:
+            return "No tools were available for this request."
 
-        entity_result = self._find_tool(tool_results, "extract_entities")
-        if entity_result is not None:
-            lines.append(self._format_entities(entity_result))
+        lines: list[str] = ["I ran the backend triage tools for this message.", ""]
 
-        rag_result = self._find_tool(tool_results, "rag_search")
-        if rag_result is not None:
-            lines.append(self._format_rag(rag_result))
-
-        summarize_result = self._find_tool(tool_results, "summarize_thread")
-        if summarize_result is not None:
-            lines.append(self._format_summary(summarize_result))
+        for result in tool_results:
+            if result.tool_name == "classify_issue":
+                lines.append(self._format_classification(result))
+            elif result.tool_name == "extract_entities":
+                lines.append(self._format_entities(result))
+            elif result.tool_name == "rag_search":
+                lines.append(self._format_rag(result))
+            elif result.tool_name == "summarize_thread":
+                lines.append(self._format_summary(result))
 
         failed_tools = [result for result in tool_results if result.status != "success"]
         if failed_tools:
@@ -220,16 +256,6 @@ class ChatService:
                 lines.append(f"- {result.tool_name}: {result.error_message}")
 
         return "\n".join(lines).strip()
-
-    def _find_tool(
-        self,
-        tool_results: list[ToolResult],
-        tool_name: str,
-    ) -> ToolResult | None:
-        for result in tool_results:
-            if result.tool_name == tool_name:
-                return result
-        return None
 
     def _format_classification(self, result: ToolResult) -> str:
         if result.status != "success":

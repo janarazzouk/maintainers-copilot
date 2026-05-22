@@ -11,7 +11,7 @@ from app.infra.groq_client import GroqLLMClient
 from app.infra.model_server_client import ModelServerClient, ModelServerError
 from app.schemas.rag import RagQueryRequest
 from app.services.rag_service import RagService
-#This file wraps your existing model-server tools and RAG pipeline. It catches tool failures so the chatbot does not crash if one tool is unavailable.
+
 
 @dataclass(frozen=True)
 class ToolResult:
@@ -24,12 +24,6 @@ class ToolResult:
 
 
 class ToolService:
-    """Backend tool runner for the chatbot.
-
-    Step 2 uses this directly from ChatService.
-    Step 3 will expose these same tools to the tool-calling LLM.
-    """
-
     def __init__(
         self,
         *,
@@ -42,6 +36,56 @@ class ToolService:
         self.model_client = model_client
         self.embedding_model = embedding_model
         self.llm_client = llm_client
+
+    async def execute_chat_tool(
+        self,
+        *,
+        tool_name: str,
+        arguments: dict[str, Any],
+        fallback_message: str,
+        repo: str | None,
+    ) -> ToolResult:
+        title = str(arguments.get("title") or self._title_from_message(fallback_message))
+        body = str(arguments.get("body") or fallback_message)
+
+        if tool_name == "classify_issue":
+            return await self.classify_issue(title=title, body=body)
+
+        if tool_name == "extract_entities":
+            return await self.extract_entities(title=title, body=body)
+
+        if tool_name == "summarize_thread":
+            return await self.summarize_thread(title=title, body=body)
+
+        if tool_name == "rag_search":
+            question = str(arguments.get("question") or fallback_message)
+            raw_top_k = arguments.get("top_k", 5)
+            try:
+                top_k = max(1, min(int(raw_top_k), 10))
+            except (TypeError, ValueError):
+                top_k = 5
+
+            label_filter = arguments.get("label_filter")
+            if label_filter is not None:
+                label_filter = str(label_filter)
+
+            return self.rag_search(
+                question=question,
+                top_k=top_k,
+                label_filter=label_filter,
+            )
+
+        return ToolResult(
+            tool_name=tool_name,
+            input_json=arguments,
+            output_json={
+                "available": False,
+                "message": f"Unknown tool: {tool_name}",
+            },
+            status="error",
+            error_message=f"Unknown tool: {tool_name}",
+            latency_ms=0,
+        )
 
     async def classify_issue(self, *, title: str, body: str) -> ToolResult:
         input_json = {"title": title, "body": body}
@@ -152,25 +196,18 @@ class ToolService:
         message: str,
         repo: str | None,
     ) -> list[ToolResult]:
-        """Temporary deterministic tool plan for Step 2.
+        """Fallback deterministic tool plan.
 
-        Later, the LLM will choose tools dynamically.
+        Used only if Groq tool-calling is unavailable.
         """
 
         title = self._title_from_message(message)
         body = message
 
         results: list[ToolResult] = []
-
         results.append(await self.classify_issue(title=title, body=body))
         results.append(await self.extract_entities(title=title, body=body))
-        results.append(
-            self.rag_search(
-                question=message,
-                top_k=5,
-                label_filter=None,
-            )
-        )
+        results.append(self.rag_search(question=message, top_k=5, label_filter=None))
 
         if "summarize" in message.lower() or "summary" in message.lower():
             results.append(await self.summarize_thread(title=title, body=body))

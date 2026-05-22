@@ -5,6 +5,7 @@ from app.api.deps import get_current_user
 from app.infra.database import get_db
 from app.infra.embeddings import EmbeddingModel
 from app.infra.groq_client import GroqLLMClient
+from app.infra.groq_tool_client import GroqToolCallingClient
 from app.infra.minio import MinIOObjectStore
 from app.infra.model_server_client import ModelServerClient
 from app.infra.redis import RedisShortTermMemory
@@ -16,6 +17,7 @@ from app.schemas.chat import (
     ConversationResponse,
 )
 from app.services.chat_service import ChatError, ChatService
+from app.services.llm_chat_service import LLMChatService
 from app.services.rag_snapshot_service import RagSnapshotService
 from app.services.tool_service import ToolService
 
@@ -38,6 +40,10 @@ def get_llm_client(request: Request) -> GroqLLMClient | None:
     return request.app.state.groq_llm_client
 
 
+def get_groq_tool_client(request: Request) -> GroqToolCallingClient | None:
+    return request.app.state.groq_tool_client
+
+
 def get_object_store(request: Request) -> MinIOObjectStore:
     return request.app.state.object_store
 
@@ -51,6 +57,7 @@ async def send_chat_message(
     model_client: ModelServerClient = Depends(get_model_client),
     embedding_model: EmbeddingModel = Depends(get_embedding_model),
     llm_client: GroqLLMClient | None = Depends(get_llm_client),
+    groq_tool_client: GroqToolCallingClient | None = Depends(get_groq_tool_client),
     object_store: MinIOObjectStore = Depends(get_object_store),
 ) -> ChatResponse:
     tool_service = ToolService(
@@ -61,11 +68,19 @@ async def send_chat_message(
     )
     rag_snapshot_service = RagSnapshotService(object_store=object_store)
 
+    llm_chat_service = None
+    if groq_tool_client is not None:
+        llm_chat_service = LLMChatService(
+            groq_client=groq_tool_client,
+            tool_service=tool_service,
+        )
+
     service = ChatService(
         db=db,
         short_term_memory=short_term_memory,
         tool_service=tool_service,
         rag_snapshot_service=rag_snapshot_service,
+        llm_chat_service=llm_chat_service,
     )
 
     try:
