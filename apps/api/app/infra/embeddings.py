@@ -9,10 +9,15 @@ class EmbeddingModel:
     It uses small ONNX-based embedding models.
     """
 
-    def __init__(self, model_name: str) -> None:
+    def __init__(self, model_name: str, cache_dir: str | None = None) -> None:
         self.model_name = model_name
-        self._model = TextEmbedding(model_name=model_name)
 
+        kwargs = {"model_name": model_name}
+        if cache_dir:
+            kwargs["cache_dir"] = cache_dir
+
+        self._model = TextEmbedding(**kwargs)
+        
     def embed_documents(self, texts: list[str], batch_size: int = 32) -> list[list[float]]:
         if not texts:
             return []

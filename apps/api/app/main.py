@@ -18,8 +18,9 @@ from app.infra.groq_client import GroqLLMClient
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     settings = get_settings()
     app.state.embedding_model = EmbeddingModel(
-        model_name=settings.embedding_model_name,
-    )
+                                model_name=settings.embedding_model_name,
+                                cache_dir=settings.embedding_cache_dir,
+                            )
     app.state.model_server_client = ModelServerClient(
     base_url=settings.model_server_url,
 )

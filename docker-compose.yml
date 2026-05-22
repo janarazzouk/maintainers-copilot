@@ -91,6 +91,11 @@ services:
         condition: service_completed_successfully
       migrate:
         condition: service_completed_successfully
+    environment:
+        EMBEDDING_CACHE_DIR: /models/fastembed
+    volumes:
+      - fastembed-cache:/models/fastembed    
+      
 
   model-server:
     build:
@@ -140,3 +145,4 @@ services:
 volumes:
   mc_pgdata:
   mc_minio:
+  fastembed-cache:

@@ -73,7 +73,10 @@ def main() -> None:
     print(f"Loaded {len(examples)} RAG golden examples from {golden_path}")
     print(f"Loading embedding model: {settings.embedding_model_name}")
 
-    embedding_model = EmbeddingModel(settings.embedding_model_name)
+    embedding_model = EmbeddingModel(
+                        model_name=settings.embedding_model_name,
+                        cache_dir=settings.embedding_cache_dir,
+                    )
 
     db_generator = get_db()
     db = next(db_generator)

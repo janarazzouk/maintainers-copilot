@@ -14,7 +14,10 @@ def main() -> None:
     init_database(database_url)
 
     print(f"Loading embedding model: {settings.embedding_model_name}")
-    embedding_model = EmbeddingModel(settings.embedding_model_name)
+    embedding_model = EmbeddingModel(
+                        model_name=settings.embedding_model_name,
+                        cache_dir=settings.embedding_cache_dir,
+                    )
 
     db_generator = get_db()
     db = next(db_generator)

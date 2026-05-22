@@ -63,6 +63,10 @@ class Settings(BaseSettings):
         default=700,
         alias="GROQ_MAX_TOKENS",
     )
+    embedding_cache_dir: str = Field(
+        default="/models/fastembed",
+        alias="EMBEDDING_CACHE_DIR",
+    ) 
     
 
 
