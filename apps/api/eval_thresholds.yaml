@@ -1,0 +1,6 @@
+rag:
+  mode: final_multi_query_hybrid_rerank
+  hit_at_5_min: 0.90
+  hit_at_10_min: 0.95
+  mrr_at_10_min: 0.85
+  doc_recall_at_5_min: 0.90

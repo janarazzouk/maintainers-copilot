@@ -1,49 +1,2362 @@
 {
-  "summary": {
-    "retrieval_mode": "multi_query_hybrid_dense_keyword_with_lightweight_technical_reranking",
-    "total_examples": 25,
-    "hit_at_5": 1.0,
-    "hit_at_10": 1.0,
-    "mrr_at_10": 0.98,
-    "doc_recall_at_5": 1.0,
-    "chunk_recall_at_10": 0.42,
-    "by_label": {
-      "bug": {
-        "count": 7.0,
-        "hit_at_5": 1.0,
-        "hit_at_10": 1.0,
-        "mrr_at_10": 1.0,
-        "doc_recall_at_5": 1.0,
-        "chunk_recall_at_10": 0.4048
-      },
-      "docs": {
-        "count": 6.0,
-        "hit_at_5": 1.0,
-        "hit_at_10": 1.0,
-        "mrr_at_10": 0.9167,
-        "doc_recall_at_5": 1.0,
-        "chunk_recall_at_10": 0.3889
-      },
-      "feature": {
-        "count": 6.0,
-        "hit_at_5": 1.0,
-        "hit_at_10": 1.0,
-        "mrr_at_10": 1.0,
-        "doc_recall_at_5": 1.0,
-        "chunk_recall_at_10": 0.4722
-      },
-      "question": {
-        "count": 6.0,
-        "hit_at_5": 1.0,
-        "hit_at_10": 1.0,
-        "mrr_at_10": 1.0,
-        "doc_recall_at_5": 1.0,
-        "chunk_recall_at_10": 0.4167
+  "summaries": [
+    {
+      "mode": "dense_only",
+      "total_examples": 25,
+      "hit_at_5": 1.0,
+      "hit_at_10": 1.0,
+      "mrr_at_10": 0.9733,
+      "doc_recall_at_5": 1.0,
+      "chunk_recall_at_10": 0.42,
+      "by_label": {
+        "bug": {
+          "count": 7.0,
+          "hit_at_5": 1.0,
+          "hit_at_10": 1.0,
+          "mrr_at_10": 0.9048,
+          "doc_recall_at_5": 1.0,
+          "chunk_recall_at_10": 0.4048
+        },
+        "docs": {
+          "count": 6.0,
+          "hit_at_5": 1.0,
+          "hit_at_10": 1.0,
+          "mrr_at_10": 1.0,
+          "doc_recall_at_5": 1.0,
+          "chunk_recall_at_10": 0.3889
+        },
+        "feature": {
+          "count": 6.0,
+          "hit_at_5": 1.0,
+          "hit_at_10": 1.0,
+          "mrr_at_10": 1.0,
+          "doc_recall_at_5": 1.0,
+          "chunk_recall_at_10": 0.4722
+        },
+        "question": {
+          "count": 6.0,
+          "hit_at_5": 1.0,
+          "hit_at_10": 1.0,
+          "mrr_at_10": 1.0,
+          "doc_recall_at_5": 1.0,
+          "chunk_recall_at_10": 0.4167
+        }
+      }
+    },
+    {
+      "mode": "hybrid_only",
+      "total_examples": 25,
+      "hit_at_5": 1.0,
+      "hit_at_10": 1.0,
+      "mrr_at_10": 0.9733,
+      "doc_recall_at_5": 1.0,
+      "chunk_recall_at_10": 0.42,
+      "by_label": {
+        "bug": {
+          "count": 7.0,
+          "hit_at_5": 1.0,
+          "hit_at_10": 1.0,
+          "mrr_at_10": 0.9048,
+          "doc_recall_at_5": 1.0,
+          "chunk_recall_at_10": 0.4048
+        },
+        "docs": {
+          "count": 6.0,
+          "hit_at_5": 1.0,
+          "hit_at_10": 1.0,
+          "mrr_at_10": 1.0,
+          "doc_recall_at_5": 1.0,
+          "chunk_recall_at_10": 0.3889
+        },
+        "feature": {
+          "count": 6.0,
+          "hit_at_5": 1.0,
+          "hit_at_10": 1.0,
+          "mrr_at_10": 1.0,
+          "doc_recall_at_5": 1.0,
+          "chunk_recall_at_10": 0.4722
+        },
+        "question": {
+          "count": 6.0,
+          "hit_at_5": 1.0,
+          "hit_at_10": 1.0,
+          "mrr_at_10": 1.0,
+          "doc_recall_at_5": 1.0,
+          "chunk_recall_at_10": 0.4167
+        }
+      }
+    },
+    {
+      "mode": "final_multi_query_hybrid_rerank",
+      "total_examples": 25,
+      "hit_at_5": 1.0,
+      "hit_at_10": 1.0,
+      "mrr_at_10": 0.98,
+      "doc_recall_at_5": 1.0,
+      "chunk_recall_at_10": 0.42,
+      "by_label": {
+        "bug": {
+          "count": 7.0,
+          "hit_at_5": 1.0,
+          "hit_at_10": 1.0,
+          "mrr_at_10": 1.0,
+          "doc_recall_at_5": 1.0,
+          "chunk_recall_at_10": 0.4048
+        },
+        "docs": {
+          "count": 6.0,
+          "hit_at_5": 1.0,
+          "hit_at_10": 1.0,
+          "mrr_at_10": 0.9167,
+          "doc_recall_at_5": 1.0,
+          "chunk_recall_at_10": 0.3889
+        },
+        "feature": {
+          "count": 6.0,
+          "hit_at_5": 1.0,
+          "hit_at_10": 1.0,
+          "mrr_at_10": 1.0,
+          "doc_recall_at_5": 1.0,
+          "chunk_recall_at_10": 0.4722
+        },
+        "question": {
+          "count": 6.0,
+          "hit_at_5": 1.0,
+          "hit_at_10": 1.0,
+          "mrr_at_10": 1.0,
+          "doc_recall_at_5": 1.0,
+          "chunk_recall_at_10": 0.4167
+        }
       }
     }
-  },
+  ],
   "examples": [
     {
+      "mode": "dense_only",
+      "question_id": "rag_q_29421",
+      "label": "bug",
+      "question": "What was the problem and resolution for this bug Node.js issue: Emission of secure events changed across versions of node?",
+      "ground_truth_doc_ids": [
+        "issue_29421"
+      ],
+      "ground_truth_chunk_ids": [
+        "issue_29421_chunk_000",
+        "issue_29421_chunk_001"
+      ],
+      "retrieved_doc_ids": [
+        "issue_29421",
+        "issue_51871",
+        "issue_53815",
+        "issue_37782",
+        "issue_16196",
+        "issue_57221",
+        "issue_59935",
+        "issue_53868",
+        "issue_43688",
+        "issue_62529"
+      ],
+      "retrieved_chunk_ids": [
+        "issue_29421_chunk_000",
+        "issue_51871_chunk_001",
+        "issue_53815_chunk_004",
+        "issue_37782_chunk_000",
+        "issue_16196_chunk_000",
+        "issue_57221_chunk_001",
+        "issue_59935_chunk_001",
+        "issue_53868_chunk_002",
+        "issue_43688_chunk_000",
+        "issue_62529_chunk_002"
+      ],
+      "hit_at_5": true,
+      "hit_at_10": true,
+      "mrr_at_10": 1.0,
+      "doc_recall_at_5": 1.0,
+      "chunk_recall_at_10": 0.5,
+      "top_doc_id": "issue_29421",
+      "top_chunk_id": "issue_29421_chunk_000"
+    },
+    {
+      "mode": "dense_only",
+      "question_id": "rag_q_37782",
+      "label": "bug",
+      "question": "What was the problem and resolution for this bug Node.js issue: child_process 'spawn' event is emitted too soon?",
+      "ground_truth_doc_ids": [
+        "issue_37782"
+      ],
+      "ground_truth_chunk_ids": [
+        "issue_37782_chunk_000",
+        "issue_37782_chunk_001",
+        "issue_37782_chunk_002"
+      ],
+      "retrieved_doc_ids": [
+        "issue_37782",
+        "issue_58290",
+        "issue_59686",
+        "issue_51871",
+        "issue_29421",
+        "issue_55500",
+        "issue_53868",
+        "issue_60368",
+        "issue_59719",
+        "issue_46669"
+      ],
+      "retrieved_chunk_ids": [
+        "issue_37782_chunk_000",
+        "issue_58290_chunk_003",
+        "issue_59686_chunk_005",
+        "issue_51871_chunk_001",
+        "issue_29421_chunk_000",
+        "issue_55500_chunk_002",
+        "issue_53868_chunk_000",
+        "issue_60368_chunk_000",
+        "issue_59719_chunk_000",
+        "issue_46669_chunk_005"
+      ],
+      "hit_at_5": true,
+      "hit_at_10": true,
+      "mrr_at_10": 1.0,
+      "doc_recall_at_5": 1.0,
+      "chunk_recall_at_10": 0.3333333333333333,
+      "top_doc_id": "issue_37782",
+      "top_chunk_id": "issue_37782_chunk_000"
+    },
+    {
+      "mode": "dense_only",
+      "question_id": "rag_q_40099",
+      "label": "bug",
+      "question": "What was the problem and resolution for this bug Node.js issue: doc: weird scrolling/anchor behavior in Chrome and Firefox?",
+      "ground_truth_doc_ids": [
+        "issue_40099"
+      ],
+      "ground_truth_chunk_ids": [
+        "issue_40099_chunk_000",
+        "issue_40099_chunk_001",
+        "issue_40099_chunk_002"
+      ],
+      "retrieved_doc_ids": [
+        "issue_40099",
+        "issue_54573",
+        "issue_39776",
+        "issue_57094",
+        "issue_54285",
+        "issue_54518",
+        "issue_51871",
+        "issue_53868",
+        "issue_57221",
+        "issue_59686"
+      ],
+      "retrieved_chunk_ids": [
+        "issue_40099_chunk_000",
+        "issue_54573_chunk_008",
+        "issue_39776_chunk_000",
+        "issue_57094_chunk_001",
+        "issue_54285_chunk_002",
+        "issue_54518_chunk_015",
+        "issue_51871_chunk_001",
+        "issue_53868_chunk_002",
+        "issue_57221_chunk_001",
+        "issue_59686_chunk_026"
+      ],
+      "hit_at_5": true,
+      "hit_at_10": true,
+      "mrr_at_10": 1.0,
+      "doc_recall_at_5": 1.0,
+      "chunk_recall_at_10": 0.3333333333333333,
+      "top_doc_id": "issue_40099",
+      "top_chunk_id": "issue_40099_chunk_000"
+    },
+    {
+      "mode": "dense_only",
+      "question_id": "rag_q_40452",
+      "label": "bug",
+      "question": "What was the problem and resolution for this bug Node.js issue: Can someone take a look at this code in _http_agent.js there may be a bug.?",
+      "ground_truth_doc_ids": [
+        "issue_40452"
+      ],
+      "ground_truth_chunk_ids": [
+        "issue_40452_chunk_000",
+        "issue_40452_chunk_001"
+      ],
+      "retrieved_doc_ids": [
+        "issue_40452",
+        "issue_54573",
+        "issue_55500",
+        "issue_59963",
+        "issue_53815",
+        "issue_58290",
+        "issue_16196",
+        "issue_57221",
+        "issue_40099",
+        "issue_54285"
+      ],
+      "retrieved_chunk_ids": [
+        "issue_40452_chunk_000",
+        "issue_54573_chunk_025",
+        "issue_55500_chunk_002",
+        "issue_59963_chunk_004",
+        "issue_53815_chunk_001",
+        "issue_58290_chunk_008",
+        "issue_16196_chunk_000",
+        "issue_57221_chunk_001",
+        "issue_40099_chunk_000",
+        "issue_54285_chunk_002"
+      ],
+      "hit_at_5": true,
+      "hit_at_10": true,
+      "mrr_at_10": 1.0,
+      "doc_recall_at_5": 1.0,
+      "chunk_recall_at_10": 0.5,
+      "top_doc_id": "issue_40452",
+      "top_chunk_id": "issue_40452_chunk_000"
+    },
+    {
+      "mode": "dense_only",
+      "question_id": "rag_q_45048",
+      "label": "bug",
+      "question": "What was the problem and resolution for this bug Node.js issue: Wrong example?",
+      "ground_truth_doc_ids": [
+        "issue_45048"
+      ],
+      "ground_truth_chunk_ids": [
+        "issue_45048_chunk_000",
+        "issue_45048_chunk_001"
+      ],
+      "retrieved_doc_ids": [
+        "issue_59963",
+        "issue_54285",
+        "issue_45048",
+        "issue_57024",
+        "issue_46669",
+        "issue_37782",
+        "issue_40099",
+        "issue_16196",
+        "issue_57221",
+        "issue_51780"
+      ],
+      "retrieved_chunk_ids": [
+        "issue_59963_chunk_009",
+        "issue_54285_chunk_002",
+        "issue_45048_chunk_000",
+        "issue_57024_chunk_000",
+        "issue_46669_chunk_005",
+        "issue_37782_chunk_000",
+        "issue_40099_chunk_000",
+        "issue_16196_chunk_000",
+        "issue_57221_chunk_001",
+        "issue_51780_chunk_000"
+      ],
+      "hit_at_5": true,
+      "hit_at_10": true,
+      "mrr_at_10": 0.3333333333333333,
+      "doc_recall_at_5": 1.0,
+      "chunk_recall_at_10": 0.5,
+      "top_doc_id": "issue_59963",
+      "top_chunk_id": "issue_59963_chunk_009"
+    },
+    {
+      "mode": "dense_only",
+      "question_id": "rag_q_46669",
+      "label": "bug",
+      "question": "What was the problem and resolution for this bug Node.js issue: Error [ERR_INTERNAL_ASSERTION] with autoSelectFamily enabled?",
+      "ground_truth_doc_ids": [
+        "issue_46669"
+      ],
+      "ground_truth_chunk_ids": [
+        "issue_46669_chunk_000",
+        "issue_46669_chunk_001",
+        "issue_46669_chunk_002"
+      ],
+      "retrieved_doc_ids": [
+        "issue_46669",
+        "issue_59963",
+        "issue_55500",
+        "issue_61881",
+        "issue_62434",
+        "issue_50961",
+        "issue_57493",
+        "issue_62224",
+        "issue_61570",
+        "issue_54285"
+      ],
+      "retrieved_chunk_ids": [
+        "issue_46669_chunk_000",
+        "issue_59963_chunk_012",
+        "issue_55500_chunk_011",
+        "issue_61881_chunk_001",
+        "issue_62434_chunk_001",
+        "issue_50961_chunk_012",
+        "issue_57493_chunk_009",
+        "issue_62224_chunk_002",
+        "issue_61570_chunk_001",
+        "issue_54285_chunk_011"
+      ],
+      "hit_at_5": true,
+      "hit_at_10": true,
+      "mrr_at_10": 1.0,
+      "doc_recall_at_5": 1.0,
+      "chunk_recall_at_10": 0.3333333333333333,
+      "top_doc_id": "issue_46669",
+      "top_chunk_id": "issue_46669_chunk_000"
+    },
+    {
+      "mode": "dense_only",
+      "question_id": "rag_q_51167",
+      "label": "bug",
+      "question": "What was the problem and resolution for this bug Node.js issue: v18.18.2 -> v18.19.0, v20.5.1 -> v20.6.0 regression: pathToFileURL trims whitespace.?",
+      "ground_truth_doc_ids": [
+        "issue_51167"
+      ],
+      "ground_truth_chunk_ids": [
+        "issue_51167_chunk_000",
+        "issue_51167_chunk_001",
+        "issue_51167_chunk_002"
+      ],
+      "retrieved_doc_ids": [
+        "issue_51167",
+        "issue_54573",
+        "issue_54285",
+        "issue_53868",
+        "issue_54518",
+        "issue_51780",
+        "issue_55417",
+        "issue_53908",
+        "issue_60562",
+        "issue_41435"
+      ],
+      "retrieved_chunk_ids": [
+        "issue_51167_chunk_000",
+        "issue_54573_chunk_034",
+        "issue_54285_chunk_004",
+        "issue_53868_chunk_002",
+        "issue_54518_chunk_010",
+        "issue_51780_chunk_000",
+        "issue_55417_chunk_002",
+        "issue_53908_chunk_006",
+        "issue_60562_chunk_000",
+        "issue_41435_chunk_001"
+      ],
+      "hit_at_5": true,
+      "hit_at_10": true,
+      "mrr_at_10": 1.0,
+      "doc_recall_at_5": 1.0,
+      "chunk_recall_at_10": 0.3333333333333333,
+      "top_doc_id": "issue_51167",
+      "top_chunk_id": "issue_51167_chunk_000"
+    },
+    {
+      "mode": "dense_only",
+      "question_id": "rag_q_19308",
+      "label": "feature",
+      "question": "What was the problem and resolution for this feature Node.js issue: Adding Websocket support to core?",
+      "ground_truth_doc_ids": [
+        "issue_19308"
+      ],
+      "ground_truth_chunk_ids": [
+        "issue_19308_chunk_000",
+        "issue_19308_chunk_001"
+      ],
+      "retrieved_doc_ids": [
+        "issue_19308",
+        "issue_16196",
+        "issue_55500",
+        "issue_46669",
+        "issue_61116",
+        "issue_40452",
+        "issue_53868",
+        "issue_62481",
+        "issue_59963",
+        "issue_23064"
+      ],
+      "retrieved_chunk_ids": [
+        "issue_19308_chunk_000",
+        "issue_16196_chunk_000",
+        "issue_55500_chunk_002",
+        "issue_46669_chunk_005",
+        "issue_61116_chunk_000",
+        "issue_40452_chunk_000",
+        "issue_53868_chunk_002",
+        "issue_62481_chunk_002",
+        "issue_59963_chunk_009",
+        "issue_23064_chunk_002"
+      ],
+      "hit_at_5": true,
+      "hit_at_10": true,
+      "mrr_at_10": 1.0,
+      "doc_recall_at_5": 1.0,
+      "chunk_recall_at_10": 0.5,
+      "top_doc_id": "issue_19308",
+      "top_chunk_id": "issue_19308_chunk_000"
+    },
+    {
+      "mode": "dense_only",
+      "question_id": "rag_q_39569",
+      "label": "feature",
+      "question": "What was the problem and resolution for this feature Node.js issue: [DNS] TLSA records [HTTPS] DANE request?",
+      "ground_truth_doc_ids": [
+        "issue_39569"
+      ],
+      "ground_truth_chunk_ids": [
+        "issue_39569_chunk_000",
+        "issue_39569_chunk_001"
+      ],
+      "retrieved_doc_ids": [
+        "issue_39569",
+        "issue_16196",
+        "issue_61881",
+        "issue_53815",
+        "issue_29421",
+        "issue_26795",
+        "issue_59963",
+        "issue_55713",
+        "issue_61634",
+        "issue_59935"
+      ],
+      "retrieved_chunk_ids": [
+        "issue_39569_chunk_000",
+        "issue_16196_chunk_001",
+        "issue_61881_chunk_000",
+        "issue_53815_chunk_004",
+        "issue_29421_chunk_000",
+        "issue_26795_chunk_001",
+        "issue_59963_chunk_007",
+        "issue_55713_chunk_004",
+        "issue_61634_chunk_001",
+        "issue_59935_chunk_001"
+      ],
+      "hit_at_5": true,
+      "hit_at_10": true,
+      "mrr_at_10": 1.0,
+      "doc_recall_at_5": 1.0,
+      "chunk_recall_at_10": 0.5,
+      "top_doc_id": "issue_39569",
+      "top_chunk_id": "issue_39569_chunk_000"
+    },
+    {
+      "mode": "dense_only",
+      "question_id": "rag_q_41435",
+      "label": "feature",
+      "question": "What was the problem and resolution for this feature Node.js issue: `readFileSync` is 40% faster than `readFile` for large files?",
+      "ground_truth_doc_ids": [
+        "issue_41435"
+      ],
+      "ground_truth_chunk_ids": [
+        "issue_41435_chunk_000",
+        "issue_41435_chunk_001"
+      ],
+      "retrieved_doc_ids": [
+        "issue_41435",
+        "issue_54400",
+        "issue_59686",
+        "issue_53908",
+        "issue_62111",
+        "issue_54518",
+        "issue_60368",
+        "issue_54285",
+        "issue_8735",
+        "issue_51167"
+      ],
+      "retrieved_chunk_ids": [
+        "issue_41435_chunk_000",
+        "issue_54400_chunk_000",
+        "issue_59686_chunk_000",
+        "issue_53908_chunk_000",
+        "issue_62111_chunk_000",
+        "issue_54518_chunk_008",
+        "issue_60368_chunk_002",
+        "issue_54285_chunk_010",
+        "issue_8735_chunk_000",
+        "issue_51167_chunk_002"
+      ],
+      "hit_at_5": true,
+      "hit_at_10": true,
+      "mrr_at_10": 1.0,
+      "doc_recall_at_5": 1.0,
+      "chunk_recall_at_10": 0.5,
+      "top_doc_id": "issue_41435",
+      "top_chunk_id": "issue_41435_chunk_000"
+    },
+    {
+      "mode": "dense_only",
+      "question_id": "rag_q_42183",
+      "label": "feature",
+      "question": "What was the problem and resolution for this feature Node.js issue: impl CookieStore??",
+      "ground_truth_doc_ids": [
+        "issue_42183"
+      ],
+      "ground_truth_chunk_ids": [
+        "issue_42183_chunk_000",
+        "issue_42183_chunk_001"
+      ],
+      "retrieved_doc_ids": [
+        "issue_42183",
+        "issue_16338",
+        "issue_30242",
+        "issue_55500",
+        "issue_62434",
+        "issue_50961",
+        "issue_59963",
+        "issue_54573",
+        "issue_61570",
+        "issue_16196"
+      ],
+      "retrieved_chunk_ids": [
+        "issue_42183_chunk_000",
+        "issue_16338_chunk_001",
+        "issue_30242_chunk_000",
+        "issue_55500_chunk_002",
+        "issue_62434_chunk_001",
+        "issue_50961_chunk_012",
+        "issue_59963_chunk_009",
+        "issue_54573_chunk_042",
+        "issue_61570_chunk_002",
+        "issue_16196_chunk_000"
+      ],
+      "hit_at_5": true,
+      "hit_at_10": true,
+      "mrr_at_10": 1.0,
+      "doc_recall_at_5": 1.0,
+      "chunk_recall_at_10": 0.5,
+      "top_doc_id": "issue_42183",
+      "top_chunk_id": "issue_42183_chunk_000"
+    },
+    {
+      "mode": "dense_only",
+      "question_id": "rag_q_52250",
+      "label": "feature",
+      "question": "What was the problem and resolution for this feature Node.js issue: Please add latest brotli 1.1.0 bindings with compression dictionary support?",
+      "ground_truth_doc_ids": [
+        "issue_52250"
+      ],
+      "ground_truth_chunk_ids": [
+        "issue_52250_chunk_000",
+        "issue_52250_chunk_001",
+        "issue_52250_chunk_002"
+      ],
+      "retrieved_doc_ids": [
+        "issue_52250",
+        "issue_62434",
+        "issue_55500",
+        "issue_55417",
+        "issue_54573",
+        "issue_53908",
+        "issue_55446",
+        "issue_57418",
+        "issue_40099",
+        "issue_53868"
+      ],
+      "retrieved_chunk_ids": [
+        "issue_52250_chunk_000",
+        "issue_62434_chunk_001",
+        "issue_55500_chunk_002",
+        "issue_55417_chunk_002",
+        "issue_54573_chunk_034",
+        "issue_53908_chunk_002",
+        "issue_55446_chunk_001",
+        "issue_57418_chunk_006",
+        "issue_40099_chunk_004",
+        "issue_53868_chunk_002"
+      ],
+      "hit_at_5": true,
+      "hit_at_10": true,
+      "mrr_at_10": 1.0,
+      "doc_recall_at_5": 1.0,
+      "chunk_recall_at_10": 0.3333333333333333,
+      "top_doc_id": "issue_52250",
+      "top_chunk_id": "issue_52250_chunk_000"
+    },
+    {
+      "mode": "dense_only",
+      "question_id": "rag_q_53700",
+      "label": "feature",
+      "question": "What was the problem and resolution for this feature Node.js issue: Allow `Buffer.copy` to take an `ArrayBuffer`?",
+      "ground_truth_doc_ids": [
+        "issue_53700"
+      ],
+      "ground_truth_chunk_ids": [
+        "issue_53700_chunk_000",
+        "issue_53700_chunk_001"
+      ],
+      "retrieved_doc_ids": [
+        "issue_53700",
+        "issue_50624",
+        "issue_54285",
+        "issue_54518",
+        "issue_52298",
+        "issue_53908",
+        "issue_59686",
+        "issue_62575",
+        "issue_11865",
+        "issue_13018"
+      ],
+      "retrieved_chunk_ids": [
+        "issue_53700_chunk_000",
+        "issue_50624_chunk_000",
+        "issue_54285_chunk_010",
+        "issue_54518_chunk_013",
+        "issue_52298_chunk_000",
+        "issue_53908_chunk_005",
+        "issue_59686_chunk_020",
+        "issue_62575_chunk_000",
+        "issue_11865_chunk_001",
+        "issue_13018_chunk_000"
+      ],
+      "hit_at_5": true,
+      "hit_at_10": true,
+      "mrr_at_10": 1.0,
+      "doc_recall_at_5": 1.0,
+      "chunk_recall_at_10": 0.5,
+      "top_doc_id": "issue_53700",
+      "top_chunk_id": "issue_53700_chunk_000"
+    },
+    {
+      "mode": "dense_only",
+      "question_id": "rag_q_43688",
+      "label": "docs",
+      "question": "What was the problem and resolution for this docs Node.js issue: http.IncomingMessage aborted Event isn't the same as http.IncomingMessage close Event?",
+      "ground_truth_doc_ids": [
+        "issue_43688"
+      ],
+      "ground_truth_chunk_ids": [
+        "issue_43688_chunk_000",
+        "issue_43688_chunk_001",
+        "issue_43688_chunk_002"
+      ],
+      "retrieved_doc_ids": [
+        "issue_43688",
+        "issue_50961",
+        "issue_61881",
+        "issue_51871",
+        "issue_55340",
+        "issue_62481",
+        "issue_59963",
+        "issue_37782",
+        "issue_54518",
+        "issue_46669"
+      ],
+      "retrieved_chunk_ids": [
+        "issue_43688_chunk_000",
+        "issue_50961_chunk_012",
+        "issue_61881_chunk_006",
+        "issue_51871_chunk_001",
+        "issue_55340_chunk_000",
+        "issue_62481_chunk_000",
+        "issue_59963_chunk_007",
+        "issue_37782_chunk_000",
+        "issue_54518_chunk_010",
+        "issue_46669_chunk_005"
+      ],
+      "hit_at_5": true,
+      "hit_at_10": true,
+      "mrr_at_10": 1.0,
+      "doc_recall_at_5": 1.0,
+      "chunk_recall_at_10": 0.3333333333333333,
+      "top_doc_id": "issue_43688",
+      "top_chunk_id": "issue_43688_chunk_000"
+    },
+    {
+      "mode": "dense_only",
+      "question_id": "rag_q_51871",
+      "label": "docs",
+      "question": "What was the problem and resolution for this docs Node.js issue: Inaccurate sentence about the event loop tick and the process.nextTick?",
+      "ground_truth_doc_ids": [
+        "issue_51871"
+      ],
+      "ground_truth_chunk_ids": [
+        "issue_51871_chunk_000",
+        "issue_51871_chunk_001"
+      ],
+      "retrieved_doc_ids": [
+        "issue_51871",
+        "issue_45048",
+        "issue_57993",
+        "issue_57024",
+        "issue_37782",
+        "issue_60368",
+        "issue_40099",
+        "issue_53868",
+        "issue_51780",
+        "issue_55731"
+      ],
+      "retrieved_chunk_ids": [
+        "issue_51871_chunk_000",
+        "issue_45048_chunk_000",
+        "issue_57993_chunk_000",
+        "issue_57024_chunk_000",
+        "issue_37782_chunk_000",
+        "issue_60368_chunk_002",
+        "issue_40099_chunk_000",
+        "issue_53868_chunk_002",
+        "issue_51780_chunk_000",
+        "issue_55731_chunk_000"
+      ],
+      "hit_at_5": true,
+      "hit_at_10": true,
+      "mrr_at_10": 1.0,
+      "doc_recall_at_5": 1.0,
+      "chunk_recall_at_10": 0.5,
+      "top_doc_id": "issue_51871",
+      "top_chunk_id": "issue_51871_chunk_000"
+    },
+    {
+      "mode": "dense_only",
+      "question_id": "rag_q_55731",
+      "label": "docs",
+      "question": "What was the problem and resolution for this docs Node.js issue: Missing documentation for process.emit?",
+      "ground_truth_doc_ids": [
+        "issue_55731"
+      ],
+      "ground_truth_chunk_ids": [
+        "issue_55731_chunk_000",
+        "issue_55731_chunk_001",
+        "issue_55731_chunk_002"
+      ],
+      "retrieved_doc_ids": [
+        "issue_55731",
+        "issue_55417",
+        "issue_54573",
+        "issue_60368",
+        "issue_53868",
+        "issue_57418",
+        "issue_11865",
+        "issue_55500",
+        "issue_59963",
+        "issue_58402"
+      ],
+      "retrieved_chunk_ids": [
+        "issue_55731_chunk_000",
+        "issue_55417_chunk_002",
+        "issue_54573_chunk_044",
+        "issue_60368_chunk_002",
+        "issue_53868_chunk_002",
+        "issue_57418_chunk_006",
+        "issue_11865_chunk_000",
+        "issue_55500_chunk_002",
+        "issue_59963_chunk_009",
+        "issue_58402_chunk_001"
+      ],
+      "hit_at_5": true,
+      "hit_at_10": true,
+      "mrr_at_10": 1.0,
+      "doc_recall_at_5": 1.0,
+      "chunk_recall_at_10": 0.3333333333333333,
+      "top_doc_id": "issue_55731",
+      "top_chunk_id": "issue_55731_chunk_000"
+    },
+    {
+      "mode": "dense_only",
+      "question_id": "rag_q_57094",
+      "label": "docs",
+      "question": "What was the problem and resolution for this docs Node.js issue: Potentially incorrect links at the bottom of the commonJs doc?",
+      "ground_truth_doc_ids": [
+        "issue_57094"
+      ],
+      "ground_truth_chunk_ids": [
+        "issue_57094_chunk_000",
+        "issue_57094_chunk_001",
+        "issue_57094_chunk_002"
+      ],
+      "retrieved_doc_ids": [
+        "issue_57094",
+        "issue_60562",
+        "issue_55417",
+        "issue_40099",
+        "issue_51780",
+        "issue_53868",
+        "issue_59686",
+        "issue_18288",
+        "issue_40546",
+        "issue_39776"
+      ],
+      "retrieved_chunk_ids": [
+        "issue_57094_chunk_000",
+        "issue_60562_chunk_000",
+        "issue_55417_chunk_002",
+        "issue_40099_chunk_000",
+        "issue_51780_chunk_000",
+        "issue_53868_chunk_002",
+        "issue_59686_chunk_026",
+        "issue_18288_chunk_000",
+        "issue_40546_chunk_000",
+        "issue_39776_chunk_000"
+      ],
+      "hit_at_5": true,
+      "hit_at_10": true,
+      "mrr_at_10": 1.0,
+      "doc_recall_at_5": 1.0,
+      "chunk_recall_at_10": 0.3333333333333333,
+      "top_doc_id": "issue_57094",
+      "top_chunk_id": "issue_57094_chunk_000"
+    },
+    {
+      "mode": "dense_only",
+      "question_id": "rag_q_57418",
+      "label": "docs",
+      "question": "What was the problem and resolution for this docs Node.js issue: --cpu-prof-name 'CPU.${pid}.cpuprofile' doesn't replace the placeholder?",
+      "ground_truth_doc_ids": [
+        "issue_57418"
+      ],
+      "ground_truth_chunk_ids": [
+        "issue_57418_chunk_000",
+        "issue_57418_chunk_001",
+        "issue_57418_chunk_002"
+      ],
+      "retrieved_doc_ids": [
+        "issue_57418",
+        "issue_60368",
+        "issue_55417",
+        "issue_53868",
+        "issue_54285",
+        "issue_58857",
+        "issue_8735",
+        "issue_59963",
+        "issue_61229",
+        "issue_61634"
+      ],
+      "retrieved_chunk_ids": [
+        "issue_57418_chunk_000",
+        "issue_60368_chunk_002",
+        "issue_55417_chunk_002",
+        "issue_53868_chunk_002",
+        "issue_54285_chunk_013",
+        "issue_58857_chunk_000",
+        "issue_8735_chunk_000",
+        "issue_59963_chunk_009",
+        "issue_61229_chunk_015",
+        "issue_61634_chunk_001"
+      ],
+      "hit_at_5": true,
+      "hit_at_10": true,
+      "mrr_at_10": 1.0,
+      "doc_recall_at_5": 1.0,
+      "chunk_recall_at_10": 0.3333333333333333,
+      "top_doc_id": "issue_57418",
+      "top_chunk_id": "issue_57418_chunk_000"
+    },
+    {
+      "mode": "dense_only",
+      "question_id": "rag_q_57993",
+      "label": "docs",
+      "question": "What was the problem and resolution for this docs Node.js issue: Docs Incorrectly State setImmediate() Runs Before Timers?",
+      "ground_truth_doc_ids": [
+        "issue_57993"
+      ],
+      "ground_truth_chunk_ids": [
+        "issue_57993_chunk_000",
+        "issue_57993_chunk_001"
+      ],
+      "retrieved_doc_ids": [
+        "issue_57993",
+        "issue_37782",
+        "issue_59686",
+        "issue_53868",
+        "issue_46669",
+        "issue_60368",
+        "issue_51871",
+        "issue_59963",
+        "issue_55417",
+        "issue_54285"
+      ],
+      "retrieved_chunk_ids": [
+        "issue_57993_chunk_000",
+        "issue_37782_chunk_005",
+        "issue_59686_chunk_019",
+        "issue_53868_chunk_002",
+        "issue_46669_chunk_005",
+        "issue_60368_chunk_002",
+        "issue_51871_chunk_001",
+        "issue_59963_chunk_007",
+        "issue_55417_chunk_002",
+        "issue_54285_chunk_002"
+      ],
+      "hit_at_5": true,
+      "hit_at_10": true,
+      "mrr_at_10": 1.0,
+      "doc_recall_at_5": 1.0,
+      "chunk_recall_at_10": 0.5,
+      "top_doc_id": "issue_57993",
+      "top_chunk_id": "issue_57993_chunk_000"
+    },
+    {
+      "mode": "dense_only",
+      "question_id": "rag_q_11865",
+      "label": "question",
+      "question": "What was the problem and resolution for this question Node.js issue: Missing stack traces from async functions after the first await?",
+      "ground_truth_doc_ids": [
+        "issue_11865"
+      ],
+      "ground_truth_chunk_ids": [
+        "issue_11865_chunk_000",
+        "issue_11865_chunk_001",
+        "issue_11865_chunk_002"
+      ],
+      "retrieved_doc_ids": [
+        "issue_11865",
+        "issue_42237",
+        "issue_57993",
+        "issue_54400",
+        "issue_59686",
+        "issue_61116",
+        "issue_57493",
+        "issue_59963",
+        "issue_54285",
+        "issue_60455"
+      ],
+      "retrieved_chunk_ids": [
+        "issue_11865_chunk_000",
+        "issue_42237_chunk_000",
+        "issue_57993_chunk_000",
+        "issue_54400_chunk_000",
+        "issue_59686_chunk_020",
+        "issue_61116_chunk_000",
+        "issue_57493_chunk_009",
+        "issue_59963_chunk_009",
+        "issue_54285_chunk_010",
+        "issue_60455_chunk_001"
+      ],
+      "hit_at_5": true,
+      "hit_at_10": true,
+      "mrr_at_10": 1.0,
+      "doc_recall_at_5": 1.0,
+      "chunk_recall_at_10": 0.3333333333333333,
+      "top_doc_id": "issue_11865",
+      "top_chunk_id": "issue_11865_chunk_000"
+    },
+    {
+      "mode": "dense_only",
+      "question_id": "rag_q_16196",
+      "label": "question",
+      "question": "What was the problem and resolution for this question Node.js issue: SSL Handshake Error using node >= 8.6.0?",
+      "ground_truth_doc_ids": [
+        "issue_16196"
+      ],
+      "ground_truth_chunk_ids": [
+        "issue_16196_chunk_000",
+        "issue_16196_chunk_001",
+        "issue_16196_chunk_002"
+      ],
+      "retrieved_doc_ids": [
+        "issue_16196",
+        "issue_61881",
+        "issue_18288",
+        "issue_39569",
+        "issue_46669",
+        "issue_61634",
+        "issue_59963",
+        "issue_29421",
+        "issue_23064",
+        "issue_54573"
+      ],
+      "retrieved_chunk_ids": [
+        "issue_16196_chunk_000",
+        "issue_61881_chunk_000",
+        "issue_18288_chunk_000",
+        "issue_39569_chunk_000",
+        "issue_46669_chunk_005",
+        "issue_61634_chunk_001",
+        "issue_59963_chunk_015",
+        "issue_29421_chunk_000",
+        "issue_23064_chunk_002",
+        "issue_54573_chunk_045"
+      ],
+      "hit_at_5": true,
+      "hit_at_10": true,
+      "mrr_at_10": 1.0,
+      "doc_recall_at_5": 1.0,
+      "chunk_recall_at_10": 0.3333333333333333,
+      "top_doc_id": "issue_16196",
+      "top_chunk_id": "issue_16196_chunk_000"
+    },
+    {
+      "mode": "dense_only",
+      "question_id": "rag_q_18288",
+      "label": "question",
+      "question": "What was the problem and resolution for this question Node.js issue: Feature request: url.join(baseUrl, ...others)?",
+      "ground_truth_doc_ids": [
+        "issue_18288"
+      ],
+      "ground_truth_chunk_ids": [
+        "issue_18288_chunk_000",
+        "issue_18288_chunk_001"
+      ],
+      "retrieved_doc_ids": [
+        "issue_18288",
+        "issue_16196",
+        "issue_61634",
+        "issue_53868",
+        "issue_51167",
+        "issue_57418",
+        "issue_61881",
+        "issue_57094",
+        "issue_51780",
+        "issue_59963"
+      ],
+      "retrieved_chunk_ids": [
+        "issue_18288_chunk_000",
+        "issue_16196_chunk_000",
+        "issue_61634_chunk_001",
+        "issue_53868_chunk_002",
+        "issue_51167_chunk_011",
+        "issue_57418_chunk_005",
+        "issue_61881_chunk_000",
+        "issue_57094_chunk_001",
+        "issue_51780_chunk_000",
+        "issue_59963_chunk_009"
+      ],
+      "hit_at_5": true,
+      "hit_at_10": true,
+      "mrr_at_10": 1.0,
+      "doc_recall_at_5": 1.0,
+      "chunk_recall_at_10": 0.5,
+      "top_doc_id": "issue_18288",
+      "top_chunk_id": "issue_18288_chunk_000"
+    },
+    {
+      "mode": "dense_only",
+      "question_id": "rag_q_26795",
+      "label": "question",
+      "question": "What was the problem and resolution for this question Node.js issue: Downgrade HTTP/2 to HTTP1 over HTTP(non-TLS)?",
+      "ground_truth_doc_ids": [
+        "issue_26795"
+      ],
+      "ground_truth_chunk_ids": [
+        "issue_26795_chunk_000",
+        "issue_26795_chunk_001"
+      ],
+      "retrieved_doc_ids": [
+        "issue_26795",
+        "issue_16196",
+        "issue_39569",
+        "issue_61881",
+        "issue_54518",
+        "issue_23064",
+        "issue_16338",
+        "issue_18288",
+        "issue_53815",
+        "issue_59686"
+      ],
+      "retrieved_chunk_ids": [
+        "issue_26795_chunk_000",
+        "issue_16196_chunk_000",
+        "issue_39569_chunk_000",
+        "issue_61881_chunk_000",
+        "issue_54518_chunk_010",
+        "issue_23064_chunk_002",
+        "issue_16338_chunk_001",
+        "issue_18288_chunk_000",
+        "issue_53815_chunk_005",
+        "issue_59686_chunk_009"
+      ],
+      "hit_at_5": true,
+      "hit_at_10": true,
+      "mrr_at_10": 1.0,
+      "doc_recall_at_5": 1.0,
+      "chunk_recall_at_10": 0.5,
+      "top_doc_id": "issue_26795",
+      "top_chunk_id": "issue_26795_chunk_000"
+    },
+    {
+      "mode": "dense_only",
+      "question_id": "rag_q_55417",
+      "label": "question",
+      "question": "What was the problem and resolution for this question Node.js issue: Can we supress the new experimental warning from the new default require(esm) setting??",
+      "ground_truth_doc_ids": [
+        "issue_55417"
+      ],
+      "ground_truth_chunk_ids": [
+        "issue_55417_chunk_000",
+        "issue_55417_chunk_001",
+        "issue_55417_chunk_002"
+      ],
+      "retrieved_doc_ids": [
+        "issue_55417",
+        "issue_55500",
+        "issue_59963",
+        "issue_62434",
+        "issue_54518",
+        "issue_50961",
+        "issue_61363",
+        "issue_57221",
+        "issue_61881",
+        "issue_61570"
+      ],
+      "retrieved_chunk_ids": [
+        "issue_55417_chunk_000",
+        "issue_55500_chunk_000",
+        "issue_59963_chunk_010",
+        "issue_62434_chunk_001",
+        "issue_54518_chunk_010",
+        "issue_50961_chunk_004",
+        "issue_61363_chunk_001",
+        "issue_57221_chunk_001",
+        "issue_61881_chunk_002",
+        "issue_61570_chunk_001"
+      ],
+      "hit_at_5": true,
+      "hit_at_10": true,
+      "mrr_at_10": 1.0,
+      "doc_recall_at_5": 1.0,
+      "chunk_recall_at_10": 0.3333333333333333,
+      "top_doc_id": "issue_55417",
+      "top_chunk_id": "issue_55417_chunk_000"
+    },
+    {
+      "mode": "dense_only",
+      "question_id": "rag_q_8735",
+      "label": "question",
+      "question": "What was the problem and resolution for this question Node.js issue: High CPU usage - futex_wait, gettimeofday syscalls?",
+      "ground_truth_doc_ids": [
+        "issue_8735"
+      ],
+      "ground_truth_chunk_ids": [
+        "issue_8735_chunk_000",
+        "issue_8735_chunk_001"
+      ],
+      "retrieved_doc_ids": [
+        "issue_8735",
+        "issue_59686",
+        "issue_13018",
+        "issue_46669",
+        "issue_54400",
+        "issue_16985",
+        "issue_11865",
+        "issue_54518",
+        "issue_51871",
+        "issue_41435"
+      ],
+      "retrieved_chunk_ids": [
+        "issue_8735_chunk_000",
+        "issue_59686_chunk_009",
+        "issue_13018_chunk_000",
+        "issue_46669_chunk_005",
+        "issue_54400_chunk_000",
+        "issue_16985_chunk_000",
+        "issue_11865_chunk_000",
+        "issue_54518_chunk_010",
+        "issue_51871_chunk_001",
+        "issue_41435_chunk_000"
+      ],
+      "hit_at_5": true,
+      "hit_at_10": true,
+      "mrr_at_10": 1.0,
+      "doc_recall_at_5": 1.0,
+      "chunk_recall_at_10": 0.5,
+      "top_doc_id": "issue_8735",
+      "top_chunk_id": "issue_8735_chunk_000"
+    },
+    {
+      "mode": "hybrid_only",
+      "question_id": "rag_q_29421",
+      "label": "bug",
+      "question": "What was the problem and resolution for this bug Node.js issue: Emission of secure events changed across versions of node?",
+      "ground_truth_doc_ids": [
+        "issue_29421"
+      ],
+      "ground_truth_chunk_ids": [
+        "issue_29421_chunk_000",
+        "issue_29421_chunk_001"
+      ],
+      "retrieved_doc_ids": [
+        "issue_29421",
+        "issue_51871",
+        "issue_53815",
+        "issue_37782",
+        "issue_16196",
+        "issue_57221",
+        "issue_59935",
+        "issue_53868",
+        "issue_43688",
+        "issue_62529"
+      ],
+      "retrieved_chunk_ids": [
+        "issue_29421_chunk_000",
+        "issue_51871_chunk_001",
+        "issue_53815_chunk_004",
+        "issue_37782_chunk_000",
+        "issue_16196_chunk_000",
+        "issue_57221_chunk_001",
+        "issue_59935_chunk_001",
+        "issue_53868_chunk_002",
+        "issue_43688_chunk_000",
+        "issue_62529_chunk_002"
+      ],
+      "hit_at_5": true,
+      "hit_at_10": true,
+      "mrr_at_10": 1.0,
+      "doc_recall_at_5": 1.0,
+      "chunk_recall_at_10": 0.5,
+      "top_doc_id": "issue_29421",
+      "top_chunk_id": "issue_29421_chunk_000"
+    },
+    {
+      "mode": "hybrid_only",
+      "question_id": "rag_q_37782",
+      "label": "bug",
+      "question": "What was the problem and resolution for this bug Node.js issue: child_process 'spawn' event is emitted too soon?",
+      "ground_truth_doc_ids": [
+        "issue_37782"
+      ],
+      "ground_truth_chunk_ids": [
+        "issue_37782_chunk_000",
+        "issue_37782_chunk_001",
+        "issue_37782_chunk_002"
+      ],
+      "retrieved_doc_ids": [
+        "issue_37782",
+        "issue_58290",
+        "issue_59686",
+        "issue_51871",
+        "issue_29421",
+        "issue_55500",
+        "issue_53868",
+        "issue_60368",
+        "issue_59719",
+        "issue_46669"
+      ],
+      "retrieved_chunk_ids": [
+        "issue_37782_chunk_000",
+        "issue_58290_chunk_003",
+        "issue_59686_chunk_005",
+        "issue_51871_chunk_001",
+        "issue_29421_chunk_000",
+        "issue_55500_chunk_002",
+        "issue_53868_chunk_000",
+        "issue_60368_chunk_000",
+        "issue_59719_chunk_000",
+        "issue_46669_chunk_005"
+      ],
+      "hit_at_5": true,
+      "hit_at_10": true,
+      "mrr_at_10": 1.0,
+      "doc_recall_at_5": 1.0,
+      "chunk_recall_at_10": 0.3333333333333333,
+      "top_doc_id": "issue_37782",
+      "top_chunk_id": "issue_37782_chunk_000"
+    },
+    {
+      "mode": "hybrid_only",
+      "question_id": "rag_q_40099",
+      "label": "bug",
+      "question": "What was the problem and resolution for this bug Node.js issue: doc: weird scrolling/anchor behavior in Chrome and Firefox?",
+      "ground_truth_doc_ids": [
+        "issue_40099"
+      ],
+      "ground_truth_chunk_ids": [
+        "issue_40099_chunk_000",
+        "issue_40099_chunk_001",
+        "issue_40099_chunk_002"
+      ],
+      "retrieved_doc_ids": [
+        "issue_40099",
+        "issue_54573",
+        "issue_39776",
+        "issue_57094",
+        "issue_54285",
+        "issue_54518",
+        "issue_51871",
+        "issue_53868",
+        "issue_57221",
+        "issue_59686"
+      ],
+      "retrieved_chunk_ids": [
+        "issue_40099_chunk_000",
+        "issue_54573_chunk_008",
+        "issue_39776_chunk_000",
+        "issue_57094_chunk_001",
+        "issue_54285_chunk_002",
+        "issue_54518_chunk_015",
+        "issue_51871_chunk_001",
+        "issue_53868_chunk_002",
+        "issue_57221_chunk_001",
+        "issue_59686_chunk_026"
+      ],
+      "hit_at_5": true,
+      "hit_at_10": true,
+      "mrr_at_10": 1.0,
+      "doc_recall_at_5": 1.0,
+      "chunk_recall_at_10": 0.3333333333333333,
+      "top_doc_id": "issue_40099",
+      "top_chunk_id": "issue_40099_chunk_000"
+    },
+    {
+      "mode": "hybrid_only",
+      "question_id": "rag_q_40452",
+      "label": "bug",
+      "question": "What was the problem and resolution for this bug Node.js issue: Can someone take a look at this code in _http_agent.js there may be a bug.?",
+      "ground_truth_doc_ids": [
+        "issue_40452"
+      ],
+      "ground_truth_chunk_ids": [
+        "issue_40452_chunk_000",
+        "issue_40452_chunk_001"
+      ],
+      "retrieved_doc_ids": [
+        "issue_40452",
+        "issue_54573",
+        "issue_55500",
+        "issue_59963",
+        "issue_53815",
+        "issue_58290",
+        "issue_16196",
+        "issue_57221",
+        "issue_40099",
+        "issue_54285"
+      ],
+      "retrieved_chunk_ids": [
+        "issue_40452_chunk_000",
+        "issue_54573_chunk_025",
+        "issue_55500_chunk_002",
+        "issue_59963_chunk_004",
+        "issue_53815_chunk_001",
+        "issue_58290_chunk_008",
+        "issue_16196_chunk_000",
+        "issue_57221_chunk_001",
+        "issue_40099_chunk_000",
+        "issue_54285_chunk_002"
+      ],
+      "hit_at_5": true,
+      "hit_at_10": true,
+      "mrr_at_10": 1.0,
+      "doc_recall_at_5": 1.0,
+      "chunk_recall_at_10": 0.5,
+      "top_doc_id": "issue_40452",
+      "top_chunk_id": "issue_40452_chunk_000"
+    },
+    {
+      "mode": "hybrid_only",
+      "question_id": "rag_q_45048",
+      "label": "bug",
+      "question": "What was the problem and resolution for this bug Node.js issue: Wrong example?",
+      "ground_truth_doc_ids": [
+        "issue_45048"
+      ],
+      "ground_truth_chunk_ids": [
+        "issue_45048_chunk_000",
+        "issue_45048_chunk_001"
+      ],
+      "retrieved_doc_ids": [
+        "issue_59963",
+        "issue_54285",
+        "issue_45048",
+        "issue_57024",
+        "issue_46669",
+        "issue_37782",
+        "issue_40099",
+        "issue_16196",
+        "issue_57221",
+        "issue_51780"
+      ],
+      "retrieved_chunk_ids": [
+        "issue_59963_chunk_009",
+        "issue_54285_chunk_002",
+        "issue_45048_chunk_000",
+        "issue_57024_chunk_000",
+        "issue_46669_chunk_005",
+        "issue_37782_chunk_000",
+        "issue_40099_chunk_000",
+        "issue_16196_chunk_000",
+        "issue_57221_chunk_001",
+        "issue_51780_chunk_000"
+      ],
+      "hit_at_5": true,
+      "hit_at_10": true,
+      "mrr_at_10": 0.3333333333333333,
+      "doc_recall_at_5": 1.0,
+      "chunk_recall_at_10": 0.5,
+      "top_doc_id": "issue_59963",
+      "top_chunk_id": "issue_59963_chunk_009"
+    },
+    {
+      "mode": "hybrid_only",
+      "question_id": "rag_q_46669",
+      "label": "bug",
+      "question": "What was the problem and resolution for this bug Node.js issue: Error [ERR_INTERNAL_ASSERTION] with autoSelectFamily enabled?",
+      "ground_truth_doc_ids": [
+        "issue_46669"
+      ],
+      "ground_truth_chunk_ids": [
+        "issue_46669_chunk_000",
+        "issue_46669_chunk_001",
+        "issue_46669_chunk_002"
+      ],
+      "retrieved_doc_ids": [
+        "issue_46669",
+        "issue_59963",
+        "issue_55500",
+        "issue_61881",
+        "issue_62434",
+        "issue_50961",
+        "issue_57493",
+        "issue_62224",
+        "issue_61570",
+        "issue_54285"
+      ],
+      "retrieved_chunk_ids": [
+        "issue_46669_chunk_000",
+        "issue_59963_chunk_012",
+        "issue_55500_chunk_011",
+        "issue_61881_chunk_001",
+        "issue_62434_chunk_001",
+        "issue_50961_chunk_012",
+        "issue_57493_chunk_009",
+        "issue_62224_chunk_002",
+        "issue_61570_chunk_001",
+        "issue_54285_chunk_011"
+      ],
+      "hit_at_5": true,
+      "hit_at_10": true,
+      "mrr_at_10": 1.0,
+      "doc_recall_at_5": 1.0,
+      "chunk_recall_at_10": 0.3333333333333333,
+      "top_doc_id": "issue_46669",
+      "top_chunk_id": "issue_46669_chunk_000"
+    },
+    {
+      "mode": "hybrid_only",
+      "question_id": "rag_q_51167",
+      "label": "bug",
+      "question": "What was the problem and resolution for this bug Node.js issue: v18.18.2 -> v18.19.0, v20.5.1 -> v20.6.0 regression: pathToFileURL trims whitespace.?",
+      "ground_truth_doc_ids": [
+        "issue_51167"
+      ],
+      "ground_truth_chunk_ids": [
+        "issue_51167_chunk_000",
+        "issue_51167_chunk_001",
+        "issue_51167_chunk_002"
+      ],
+      "retrieved_doc_ids": [
+        "issue_51167",
+        "issue_54573",
+        "issue_54285",
+        "issue_53868",
+        "issue_54518",
+        "issue_51780",
+        "issue_55417",
+        "issue_53908",
+        "issue_60562",
+        "issue_41435"
+      ],
+      "retrieved_chunk_ids": [
+        "issue_51167_chunk_000",
+        "issue_54573_chunk_034",
+        "issue_54285_chunk_004",
+        "issue_53868_chunk_002",
+        "issue_54518_chunk_010",
+        "issue_51780_chunk_000",
+        "issue_55417_chunk_002",
+        "issue_53908_chunk_006",
+        "issue_60562_chunk_000",
+        "issue_41435_chunk_001"
+      ],
+      "hit_at_5": true,
+      "hit_at_10": true,
+      "mrr_at_10": 1.0,
+      "doc_recall_at_5": 1.0,
+      "chunk_recall_at_10": 0.3333333333333333,
+      "top_doc_id": "issue_51167",
+      "top_chunk_id": "issue_51167_chunk_000"
+    },
+    {
+      "mode": "hybrid_only",
+      "question_id": "rag_q_19308",
+      "label": "feature",
+      "question": "What was the problem and resolution for this feature Node.js issue: Adding Websocket support to core?",
+      "ground_truth_doc_ids": [
+        "issue_19308"
+      ],
+      "ground_truth_chunk_ids": [
+        "issue_19308_chunk_000",
+        "issue_19308_chunk_001"
+      ],
+      "retrieved_doc_ids": [
+        "issue_19308",
+        "issue_16196",
+        "issue_55500",
+        "issue_46669",
+        "issue_61116",
+        "issue_40452",
+        "issue_53868",
+        "issue_62481",
+        "issue_59963",
+        "issue_23064"
+      ],
+      "retrieved_chunk_ids": [
+        "issue_19308_chunk_000",
+        "issue_16196_chunk_000",
+        "issue_55500_chunk_002",
+        "issue_46669_chunk_005",
+        "issue_61116_chunk_000",
+        "issue_40452_chunk_000",
+        "issue_53868_chunk_002",
+        "issue_62481_chunk_002",
+        "issue_59963_chunk_009",
+        "issue_23064_chunk_002"
+      ],
+      "hit_at_5": true,
+      "hit_at_10": true,
+      "mrr_at_10": 1.0,
+      "doc_recall_at_5": 1.0,
+      "chunk_recall_at_10": 0.5,
+      "top_doc_id": "issue_19308",
+      "top_chunk_id": "issue_19308_chunk_000"
+    },
+    {
+      "mode": "hybrid_only",
+      "question_id": "rag_q_39569",
+      "label": "feature",
+      "question": "What was the problem and resolution for this feature Node.js issue: [DNS] TLSA records [HTTPS] DANE request?",
+      "ground_truth_doc_ids": [
+        "issue_39569"
+      ],
+      "ground_truth_chunk_ids": [
+        "issue_39569_chunk_000",
+        "issue_39569_chunk_001"
+      ],
+      "retrieved_doc_ids": [
+        "issue_39569",
+        "issue_16196",
+        "issue_61881",
+        "issue_53815",
+        "issue_29421",
+        "issue_26795",
+        "issue_59963",
+        "issue_55713",
+        "issue_61634",
+        "issue_59935"
+      ],
+      "retrieved_chunk_ids": [
+        "issue_39569_chunk_000",
+        "issue_16196_chunk_001",
+        "issue_61881_chunk_000",
+        "issue_53815_chunk_004",
+        "issue_29421_chunk_000",
+        "issue_26795_chunk_001",
+        "issue_59963_chunk_007",
+        "issue_55713_chunk_004",
+        "issue_61634_chunk_001",
+        "issue_59935_chunk_001"
+      ],
+      "hit_at_5": true,
+      "hit_at_10": true,
+      "mrr_at_10": 1.0,
+      "doc_recall_at_5": 1.0,
+      "chunk_recall_at_10": 0.5,
+      "top_doc_id": "issue_39569",
+      "top_chunk_id": "issue_39569_chunk_000"
+    },
+    {
+      "mode": "hybrid_only",
+      "question_id": "rag_q_41435",
+      "label": "feature",
+      "question": "What was the problem and resolution for this feature Node.js issue: `readFileSync` is 40% faster than `readFile` for large files?",
+      "ground_truth_doc_ids": [
+        "issue_41435"
+      ],
+      "ground_truth_chunk_ids": [
+        "issue_41435_chunk_000",
+        "issue_41435_chunk_001"
+      ],
+      "retrieved_doc_ids": [
+        "issue_41435",
+        "issue_54400",
+        "issue_59686",
+        "issue_53908",
+        "issue_62111",
+        "issue_54518",
+        "issue_60368",
+        "issue_54285",
+        "issue_8735",
+        "issue_51167"
+      ],
+      "retrieved_chunk_ids": [
+        "issue_41435_chunk_000",
+        "issue_54400_chunk_000",
+        "issue_59686_chunk_000",
+        "issue_53908_chunk_000",
+        "issue_62111_chunk_000",
+        "issue_54518_chunk_008",
+        "issue_60368_chunk_002",
+        "issue_54285_chunk_010",
+        "issue_8735_chunk_000",
+        "issue_51167_chunk_002"
+      ],
+      "hit_at_5": true,
+      "hit_at_10": true,
+      "mrr_at_10": 1.0,
+      "doc_recall_at_5": 1.0,
+      "chunk_recall_at_10": 0.5,
+      "top_doc_id": "issue_41435",
+      "top_chunk_id": "issue_41435_chunk_000"
+    },
+    {
+      "mode": "hybrid_only",
+      "question_id": "rag_q_42183",
+      "label": "feature",
+      "question": "What was the problem and resolution for this feature Node.js issue: impl CookieStore??",
+      "ground_truth_doc_ids": [
+        "issue_42183"
+      ],
+      "ground_truth_chunk_ids": [
+        "issue_42183_chunk_000",
+        "issue_42183_chunk_001"
+      ],
+      "retrieved_doc_ids": [
+        "issue_42183",
+        "issue_16338",
+        "issue_30242",
+        "issue_55500",
+        "issue_62434",
+        "issue_50961",
+        "issue_59963",
+        "issue_54573",
+        "issue_61570",
+        "issue_16196"
+      ],
+      "retrieved_chunk_ids": [
+        "issue_42183_chunk_000",
+        "issue_16338_chunk_001",
+        "issue_30242_chunk_000",
+        "issue_55500_chunk_002",
+        "issue_62434_chunk_001",
+        "issue_50961_chunk_012",
+        "issue_59963_chunk_009",
+        "issue_54573_chunk_042",
+        "issue_61570_chunk_002",
+        "issue_16196_chunk_000"
+      ],
+      "hit_at_5": true,
+      "hit_at_10": true,
+      "mrr_at_10": 1.0,
+      "doc_recall_at_5": 1.0,
+      "chunk_recall_at_10": 0.5,
+      "top_doc_id": "issue_42183",
+      "top_chunk_id": "issue_42183_chunk_000"
+    },
+    {
+      "mode": "hybrid_only",
+      "question_id": "rag_q_52250",
+      "label": "feature",
+      "question": "What was the problem and resolution for this feature Node.js issue: Please add latest brotli 1.1.0 bindings with compression dictionary support?",
+      "ground_truth_doc_ids": [
+        "issue_52250"
+      ],
+      "ground_truth_chunk_ids": [
+        "issue_52250_chunk_000",
+        "issue_52250_chunk_001",
+        "issue_52250_chunk_002"
+      ],
+      "retrieved_doc_ids": [
+        "issue_52250",
+        "issue_62434",
+        "issue_55500",
+        "issue_55417",
+        "issue_54573",
+        "issue_53908",
+        "issue_55446",
+        "issue_57418",
+        "issue_40099",
+        "issue_53868"
+      ],
+      "retrieved_chunk_ids": [
+        "issue_52250_chunk_000",
+        "issue_62434_chunk_001",
+        "issue_55500_chunk_002",
+        "issue_55417_chunk_002",
+        "issue_54573_chunk_034",
+        "issue_53908_chunk_002",
+        "issue_55446_chunk_001",
+        "issue_57418_chunk_006",
+        "issue_40099_chunk_004",
+        "issue_53868_chunk_002"
+      ],
+      "hit_at_5": true,
+      "hit_at_10": true,
+      "mrr_at_10": 1.0,
+      "doc_recall_at_5": 1.0,
+      "chunk_recall_at_10": 0.3333333333333333,
+      "top_doc_id": "issue_52250",
+      "top_chunk_id": "issue_52250_chunk_000"
+    },
+    {
+      "mode": "hybrid_only",
+      "question_id": "rag_q_53700",
+      "label": "feature",
+      "question": "What was the problem and resolution for this feature Node.js issue: Allow `Buffer.copy` to take an `ArrayBuffer`?",
+      "ground_truth_doc_ids": [
+        "issue_53700"
+      ],
+      "ground_truth_chunk_ids": [
+        "issue_53700_chunk_000",
+        "issue_53700_chunk_001"
+      ],
+      "retrieved_doc_ids": [
+        "issue_53700",
+        "issue_50624",
+        "issue_54285",
+        "issue_54518",
+        "issue_52298",
+        "issue_53908",
+        "issue_59686",
+        "issue_62575",
+        "issue_11865",
+        "issue_13018"
+      ],
+      "retrieved_chunk_ids": [
+        "issue_53700_chunk_000",
+        "issue_50624_chunk_000",
+        "issue_54285_chunk_010",
+        "issue_54518_chunk_013",
+        "issue_52298_chunk_000",
+        "issue_53908_chunk_005",
+        "issue_59686_chunk_020",
+        "issue_62575_chunk_000",
+        "issue_11865_chunk_001",
+        "issue_13018_chunk_000"
+      ],
+      "hit_at_5": true,
+      "hit_at_10": true,
+      "mrr_at_10": 1.0,
+      "doc_recall_at_5": 1.0,
+      "chunk_recall_at_10": 0.5,
+      "top_doc_id": "issue_53700",
+      "top_chunk_id": "issue_53700_chunk_000"
+    },
+    {
+      "mode": "hybrid_only",
+      "question_id": "rag_q_43688",
+      "label": "docs",
+      "question": "What was the problem and resolution for this docs Node.js issue: http.IncomingMessage aborted Event isn't the same as http.IncomingMessage close Event?",
+      "ground_truth_doc_ids": [
+        "issue_43688"
+      ],
+      "ground_truth_chunk_ids": [
+        "issue_43688_chunk_000",
+        "issue_43688_chunk_001",
+        "issue_43688_chunk_002"
+      ],
+      "retrieved_doc_ids": [
+        "issue_43688",
+        "issue_50961",
+        "issue_61881",
+        "issue_51871",
+        "issue_55340",
+        "issue_62481",
+        "issue_59963",
+        "issue_37782",
+        "issue_54518",
+        "issue_46669"
+      ],
+      "retrieved_chunk_ids": [
+        "issue_43688_chunk_000",
+        "issue_50961_chunk_012",
+        "issue_61881_chunk_006",
+        "issue_51871_chunk_001",
+        "issue_55340_chunk_000",
+        "issue_62481_chunk_000",
+        "issue_59963_chunk_007",
+        "issue_37782_chunk_000",
+        "issue_54518_chunk_010",
+        "issue_46669_chunk_005"
+      ],
+      "hit_at_5": true,
+      "hit_at_10": true,
+      "mrr_at_10": 1.0,
+      "doc_recall_at_5": 1.0,
+      "chunk_recall_at_10": 0.3333333333333333,
+      "top_doc_id": "issue_43688",
+      "top_chunk_id": "issue_43688_chunk_000"
+    },
+    {
+      "mode": "hybrid_only",
+      "question_id": "rag_q_51871",
+      "label": "docs",
+      "question": "What was the problem and resolution for this docs Node.js issue: Inaccurate sentence about the event loop tick and the process.nextTick?",
+      "ground_truth_doc_ids": [
+        "issue_51871"
+      ],
+      "ground_truth_chunk_ids": [
+        "issue_51871_chunk_000",
+        "issue_51871_chunk_001"
+      ],
+      "retrieved_doc_ids": [
+        "issue_51871",
+        "issue_45048",
+        "issue_57993",
+        "issue_57024",
+        "issue_37782",
+        "issue_60368",
+        "issue_40099",
+        "issue_53868",
+        "issue_51780",
+        "issue_55731"
+      ],
+      "retrieved_chunk_ids": [
+        "issue_51871_chunk_000",
+        "issue_45048_chunk_000",
+        "issue_57993_chunk_000",
+        "issue_57024_chunk_000",
+        "issue_37782_chunk_000",
+        "issue_60368_chunk_002",
+        "issue_40099_chunk_000",
+        "issue_53868_chunk_002",
+        "issue_51780_chunk_000",
+        "issue_55731_chunk_000"
+      ],
+      "hit_at_5": true,
+      "hit_at_10": true,
+      "mrr_at_10": 1.0,
+      "doc_recall_at_5": 1.0,
+      "chunk_recall_at_10": 0.5,
+      "top_doc_id": "issue_51871",
+      "top_chunk_id": "issue_51871_chunk_000"
+    },
+    {
+      "mode": "hybrid_only",
+      "question_id": "rag_q_55731",
+      "label": "docs",
+      "question": "What was the problem and resolution for this docs Node.js issue: Missing documentation for process.emit?",
+      "ground_truth_doc_ids": [
+        "issue_55731"
+      ],
+      "ground_truth_chunk_ids": [
+        "issue_55731_chunk_000",
+        "issue_55731_chunk_001",
+        "issue_55731_chunk_002"
+      ],
+      "retrieved_doc_ids": [
+        "issue_55731",
+        "issue_55417",
+        "issue_54573",
+        "issue_60368",
+        "issue_53868",
+        "issue_57418",
+        "issue_11865",
+        "issue_55500",
+        "issue_59963",
+        "issue_58402"
+      ],
+      "retrieved_chunk_ids": [
+        "issue_55731_chunk_000",
+        "issue_55417_chunk_002",
+        "issue_54573_chunk_044",
+        "issue_60368_chunk_002",
+        "issue_53868_chunk_002",
+        "issue_57418_chunk_006",
+        "issue_11865_chunk_000",
+        "issue_55500_chunk_002",
+        "issue_59963_chunk_009",
+        "issue_58402_chunk_001"
+      ],
+      "hit_at_5": true,
+      "hit_at_10": true,
+      "mrr_at_10": 1.0,
+      "doc_recall_at_5": 1.0,
+      "chunk_recall_at_10": 0.3333333333333333,
+      "top_doc_id": "issue_55731",
+      "top_chunk_id": "issue_55731_chunk_000"
+    },
+    {
+      "mode": "hybrid_only",
+      "question_id": "rag_q_57094",
+      "label": "docs",
+      "question": "What was the problem and resolution for this docs Node.js issue: Potentially incorrect links at the bottom of the commonJs doc?",
+      "ground_truth_doc_ids": [
+        "issue_57094"
+      ],
+      "ground_truth_chunk_ids": [
+        "issue_57094_chunk_000",
+        "issue_57094_chunk_001",
+        "issue_57094_chunk_002"
+      ],
+      "retrieved_doc_ids": [
+        "issue_57094",
+        "issue_60562",
+        "issue_55417",
+        "issue_40099",
+        "issue_51780",
+        "issue_53868",
+        "issue_59686",
+        "issue_18288",
+        "issue_40546",
+        "issue_39776"
+      ],
+      "retrieved_chunk_ids": [
+        "issue_57094_chunk_000",
+        "issue_60562_chunk_000",
+        "issue_55417_chunk_002",
+        "issue_40099_chunk_000",
+        "issue_51780_chunk_000",
+        "issue_53868_chunk_002",
+        "issue_59686_chunk_026",
+        "issue_18288_chunk_000",
+        "issue_40546_chunk_000",
+        "issue_39776_chunk_000"
+      ],
+      "hit_at_5": true,
+      "hit_at_10": true,
+      "mrr_at_10": 1.0,
+      "doc_recall_at_5": 1.0,
+      "chunk_recall_at_10": 0.3333333333333333,
+      "top_doc_id": "issue_57094",
+      "top_chunk_id": "issue_57094_chunk_000"
+    },
+    {
+      "mode": "hybrid_only",
+      "question_id": "rag_q_57418",
+      "label": "docs",
+      "question": "What was the problem and resolution for this docs Node.js issue: --cpu-prof-name 'CPU.${pid}.cpuprofile' doesn't replace the placeholder?",
+      "ground_truth_doc_ids": [
+        "issue_57418"
+      ],
+      "ground_truth_chunk_ids": [
+        "issue_57418_chunk_000",
+        "issue_57418_chunk_001",
+        "issue_57418_chunk_002"
+      ],
+      "retrieved_doc_ids": [
+        "issue_57418",
+        "issue_60368",
+        "issue_55417",
+        "issue_53868",
+        "issue_54285",
+        "issue_58857",
+        "issue_8735",
+        "issue_59963",
+        "issue_61229",
+        "issue_61634"
+      ],
+      "retrieved_chunk_ids": [
+        "issue_57418_chunk_000",
+        "issue_60368_chunk_002",
+        "issue_55417_chunk_002",
+        "issue_53868_chunk_002",
+        "issue_54285_chunk_013",
+        "issue_58857_chunk_000",
+        "issue_8735_chunk_000",
+        "issue_59963_chunk_009",
+        "issue_61229_chunk_015",
+        "issue_61634_chunk_001"
+      ],
+      "hit_at_5": true,
+      "hit_at_10": true,
+      "mrr_at_10": 1.0,
+      "doc_recall_at_5": 1.0,
+      "chunk_recall_at_10": 0.3333333333333333,
+      "top_doc_id": "issue_57418",
+      "top_chunk_id": "issue_57418_chunk_000"
+    },
+    {
+      "mode": "hybrid_only",
+      "question_id": "rag_q_57993",
+      "label": "docs",
+      "question": "What was the problem and resolution for this docs Node.js issue: Docs Incorrectly State setImmediate() Runs Before Timers?",
+      "ground_truth_doc_ids": [
+        "issue_57993"
+      ],
+      "ground_truth_chunk_ids": [
+        "issue_57993_chunk_000",
+        "issue_57993_chunk_001"
+      ],
+      "retrieved_doc_ids": [
+        "issue_57993",
+        "issue_37782",
+        "issue_59686",
+        "issue_53868",
+        "issue_46669",
+        "issue_60368",
+        "issue_51871",
+        "issue_59963",
+        "issue_55417",
+        "issue_54285"
+      ],
+      "retrieved_chunk_ids": [
+        "issue_57993_chunk_000",
+        "issue_37782_chunk_005",
+        "issue_59686_chunk_019",
+        "issue_53868_chunk_002",
+        "issue_46669_chunk_005",
+        "issue_60368_chunk_002",
+        "issue_51871_chunk_001",
+        "issue_59963_chunk_007",
+        "issue_55417_chunk_002",
+        "issue_54285_chunk_002"
+      ],
+      "hit_at_5": true,
+      "hit_at_10": true,
+      "mrr_at_10": 1.0,
+      "doc_recall_at_5": 1.0,
+      "chunk_recall_at_10": 0.5,
+      "top_doc_id": "issue_57993",
+      "top_chunk_id": "issue_57993_chunk_000"
+    },
+    {
+      "mode": "hybrid_only",
+      "question_id": "rag_q_11865",
+      "label": "question",
+      "question": "What was the problem and resolution for this question Node.js issue: Missing stack traces from async functions after the first await?",
+      "ground_truth_doc_ids": [
+        "issue_11865"
+      ],
+      "ground_truth_chunk_ids": [
+        "issue_11865_chunk_000",
+        "issue_11865_chunk_001",
+        "issue_11865_chunk_002"
+      ],
+      "retrieved_doc_ids": [
+        "issue_11865",
+        "issue_42237",
+        "issue_57993",
+        "issue_54400",
+        "issue_59686",
+        "issue_61116",
+        "issue_57493",
+        "issue_59963",
+        "issue_54285",
+        "issue_60455"
+      ],
+      "retrieved_chunk_ids": [
+        "issue_11865_chunk_000",
+        "issue_42237_chunk_000",
+        "issue_57993_chunk_000",
+        "issue_54400_chunk_000",
+        "issue_59686_chunk_020",
+        "issue_61116_chunk_000",
+        "issue_57493_chunk_009",
+        "issue_59963_chunk_009",
+        "issue_54285_chunk_010",
+        "issue_60455_chunk_001"
+      ],
+      "hit_at_5": true,
+      "hit_at_10": true,
+      "mrr_at_10": 1.0,
+      "doc_recall_at_5": 1.0,
+      "chunk_recall_at_10": 0.3333333333333333,
+      "top_doc_id": "issue_11865",
+      "top_chunk_id": "issue_11865_chunk_000"
+    },
+    {
+      "mode": "hybrid_only",
+      "question_id": "rag_q_16196",
+      "label": "question",
+      "question": "What was the problem and resolution for this question Node.js issue: SSL Handshake Error using node >= 8.6.0?",
+      "ground_truth_doc_ids": [
+        "issue_16196"
+      ],
+      "ground_truth_chunk_ids": [
+        "issue_16196_chunk_000",
+        "issue_16196_chunk_001",
+        "issue_16196_chunk_002"
+      ],
+      "retrieved_doc_ids": [
+        "issue_16196",
+        "issue_61881",
+        "issue_18288",
+        "issue_39569",
+        "issue_46669",
+        "issue_61634",
+        "issue_59963",
+        "issue_29421",
+        "issue_23064",
+        "issue_54573"
+      ],
+      "retrieved_chunk_ids": [
+        "issue_16196_chunk_000",
+        "issue_61881_chunk_000",
+        "issue_18288_chunk_000",
+        "issue_39569_chunk_000",
+        "issue_46669_chunk_005",
+        "issue_61634_chunk_001",
+        "issue_59963_chunk_015",
+        "issue_29421_chunk_000",
+        "issue_23064_chunk_002",
+        "issue_54573_chunk_045"
+      ],
+      "hit_at_5": true,
+      "hit_at_10": true,
+      "mrr_at_10": 1.0,
+      "doc_recall_at_5": 1.0,
+      "chunk_recall_at_10": 0.3333333333333333,
+      "top_doc_id": "issue_16196",
+      "top_chunk_id": "issue_16196_chunk_000"
+    },
+    {
+      "mode": "hybrid_only",
+      "question_id": "rag_q_18288",
+      "label": "question",
+      "question": "What was the problem and resolution for this question Node.js issue: Feature request: url.join(baseUrl, ...others)?",
+      "ground_truth_doc_ids": [
+        "issue_18288"
+      ],
+      "ground_truth_chunk_ids": [
+        "issue_18288_chunk_000",
+        "issue_18288_chunk_001"
+      ],
+      "retrieved_doc_ids": [
+        "issue_18288",
+        "issue_16196",
+        "issue_61634",
+        "issue_53868",
+        "issue_51167",
+        "issue_57418",
+        "issue_61881",
+        "issue_57094",
+        "issue_51780",
+        "issue_59963"
+      ],
+      "retrieved_chunk_ids": [
+        "issue_18288_chunk_000",
+        "issue_16196_chunk_000",
+        "issue_61634_chunk_001",
+        "issue_53868_chunk_002",
+        "issue_51167_chunk_011",
+        "issue_57418_chunk_005",
+        "issue_61881_chunk_000",
+        "issue_57094_chunk_001",
+        "issue_51780_chunk_000",
+        "issue_59963_chunk_009"
+      ],
+      "hit_at_5": true,
+      "hit_at_10": true,
+      "mrr_at_10": 1.0,
+      "doc_recall_at_5": 1.0,
+      "chunk_recall_at_10": 0.5,
+      "top_doc_id": "issue_18288",
+      "top_chunk_id": "issue_18288_chunk_000"
+    },
+    {
+      "mode": "hybrid_only",
+      "question_id": "rag_q_26795",
+      "label": "question",
+      "question": "What was the problem and resolution for this question Node.js issue: Downgrade HTTP/2 to HTTP1 over HTTP(non-TLS)?",
+      "ground_truth_doc_ids": [
+        "issue_26795"
+      ],
+      "ground_truth_chunk_ids": [
+        "issue_26795_chunk_000",
+        "issue_26795_chunk_001"
+      ],
+      "retrieved_doc_ids": [
+        "issue_26795",
+        "issue_16196",
+        "issue_39569",
+        "issue_61881",
+        "issue_54518",
+        "issue_23064",
+        "issue_16338",
+        "issue_18288",
+        "issue_53815",
+        "issue_59686"
+      ],
+      "retrieved_chunk_ids": [
+        "issue_26795_chunk_000",
+        "issue_16196_chunk_000",
+        "issue_39569_chunk_000",
+        "issue_61881_chunk_000",
+        "issue_54518_chunk_010",
+        "issue_23064_chunk_002",
+        "issue_16338_chunk_001",
+        "issue_18288_chunk_000",
+        "issue_53815_chunk_005",
+        "issue_59686_chunk_009"
+      ],
+      "hit_at_5": true,
+      "hit_at_10": true,
+      "mrr_at_10": 1.0,
+      "doc_recall_at_5": 1.0,
+      "chunk_recall_at_10": 0.5,
+      "top_doc_id": "issue_26795",
+      "top_chunk_id": "issue_26795_chunk_000"
+    },
+    {
+      "mode": "hybrid_only",
+      "question_id": "rag_q_55417",
+      "label": "question",
+      "question": "What was the problem and resolution for this question Node.js issue: Can we supress the new experimental warning from the new default require(esm) setting??",
+      "ground_truth_doc_ids": [
+        "issue_55417"
+      ],
+      "ground_truth_chunk_ids": [
+        "issue_55417_chunk_000",
+        "issue_55417_chunk_001",
+        "issue_55417_chunk_002"
+      ],
+      "retrieved_doc_ids": [
+        "issue_55417",
+        "issue_55500",
+        "issue_59963",
+        "issue_62434",
+        "issue_54518",
+        "issue_50961",
+        "issue_61363",
+        "issue_57221",
+        "issue_61881",
+        "issue_61570"
+      ],
+      "retrieved_chunk_ids": [
+        "issue_55417_chunk_000",
+        "issue_55500_chunk_000",
+        "issue_59963_chunk_010",
+        "issue_62434_chunk_001",
+        "issue_54518_chunk_010",
+        "issue_50961_chunk_004",
+        "issue_61363_chunk_001",
+        "issue_57221_chunk_001",
+        "issue_61881_chunk_002",
+        "issue_61570_chunk_001"
+      ],
+      "hit_at_5": true,
+      "hit_at_10": true,
+      "mrr_at_10": 1.0,
+      "doc_recall_at_5": 1.0,
+      "chunk_recall_at_10": 0.3333333333333333,
+      "top_doc_id": "issue_55417",
+      "top_chunk_id": "issue_55417_chunk_000"
+    },
+    {
+      "mode": "hybrid_only",
+      "question_id": "rag_q_8735",
+      "label": "question",
+      "question": "What was the problem and resolution for this question Node.js issue: High CPU usage - futex_wait, gettimeofday syscalls?",
+      "ground_truth_doc_ids": [
+        "issue_8735"
+      ],
+      "ground_truth_chunk_ids": [
+        "issue_8735_chunk_000",
+        "issue_8735_chunk_001"
+      ],
+      "retrieved_doc_ids": [
+        "issue_8735",
+        "issue_59686",
+        "issue_13018",
+        "issue_46669",
+        "issue_54400",
+        "issue_16985",
+        "issue_11865",
+        "issue_54518",
+        "issue_51871",
+        "issue_41435"
+      ],
+      "retrieved_chunk_ids": [
+        "issue_8735_chunk_000",
+        "issue_59686_chunk_009",
+        "issue_13018_chunk_000",
+        "issue_46669_chunk_005",
+        "issue_54400_chunk_000",
+        "issue_16985_chunk_000",
+        "issue_11865_chunk_000",
+        "issue_54518_chunk_010",
+        "issue_51871_chunk_001",
+        "issue_41435_chunk_000"
+      ],
+      "hit_at_5": true,
+      "hit_at_10": true,
+      "mrr_at_10": 1.0,
+      "doc_recall_at_5": 1.0,
+      "chunk_recall_at_10": 0.5,
+      "top_doc_id": "issue_8735",
+      "top_chunk_id": "issue_8735_chunk_000"
+    },
+    {
+      "mode": "final_multi_query_hybrid_rerank",
       "question_id": "rag_q_29421",
       "label": "bug",
       "question": "What was the problem and resolution for this bug Node.js issue: Emission of secure events changed across versions of node?",
@@ -87,6 +2400,7 @@
       "top_chunk_id": "issue_29421_chunk_000"
     },
     {
+      "mode": "final_multi_query_hybrid_rerank",
       "question_id": "rag_q_37782",
       "label": "bug",
       "question": "What was the problem and resolution for this bug Node.js issue: child_process 'spawn' event is emitted too soon?",
@@ -131,6 +2445,7 @@
       "top_chunk_id": "issue_37782_chunk_000"
     },
     {
+      "mode": "final_multi_query_hybrid_rerank",
       "question_id": "rag_q_40099",
       "label": "bug",
       "question": "What was the problem and resolution for this bug Node.js issue: doc: weird scrolling/anchor behavior in Chrome and Firefox?",
@@ -175,6 +2490,7 @@
       "top_chunk_id": "issue_40099_chunk_000"
     },
     {
+      "mode": "final_multi_query_hybrid_rerank",
       "question_id": "rag_q_40452",
       "label": "bug",
       "question": "What was the problem and resolution for this bug Node.js issue: Can someone take a look at this code in _http_agent.js there may be a bug.?",
@@ -218,6 +2534,7 @@
       "top_chunk_id": "issue_40452_chunk_000"
     },
     {
+      "mode": "final_multi_query_hybrid_rerank",
       "question_id": "rag_q_45048",
       "label": "bug",
       "question": "What was the problem and resolution for this bug Node.js issue: Wrong example?",
@@ -261,6 +2578,7 @@
       "top_chunk_id": "issue_45048_chunk_000"
     },
     {
+      "mode": "final_multi_query_hybrid_rerank",
       "question_id": "rag_q_46669",
       "label": "bug",
       "question": "What was the problem and resolution for this bug Node.js issue: Error [ERR_INTERNAL_ASSERTION] with autoSelectFamily enabled?",
@@ -305,6 +2623,7 @@
       "top_chunk_id": "issue_46669_chunk_000"
     },
     {
+      "mode": "final_multi_query_hybrid_rerank",
       "question_id": "rag_q_51167",
       "label": "bug",
       "question": "What was the problem and resolution for this bug Node.js issue: v18.18.2 -> v18.19.0, v20.5.1 -> v20.6.0 regression: pathToFileURL trims whitespace.?",
@@ -349,6 +2668,7 @@
       "top_chunk_id": "issue_51167_chunk_000"
     },
     {
+      "mode": "final_multi_query_hybrid_rerank",
       "question_id": "rag_q_19308",
       "label": "feature",
       "question": "What was the problem and resolution for this feature Node.js issue: Adding Websocket support to core?",
@@ -392,6 +2712,7 @@
       "top_chunk_id": "issue_19308_chunk_000"
     },
     {
+      "mode": "final_multi_query_hybrid_rerank",
       "question_id": "rag_q_39569",
       "label": "feature",
       "question": "What was the problem and resolution for this feature Node.js issue: [DNS] TLSA records [HTTPS] DANE request?",
@@ -435,6 +2756,7 @@
       "top_chunk_id": "issue_39569_chunk_000"
     },
     {
+      "mode": "final_multi_query_hybrid_rerank",
       "question_id": "rag_q_41435",
       "label": "feature",
       "question": "What was the problem and resolution for this feature Node.js issue: `readFileSync` is 40% faster than `readFile` for large files?",
@@ -478,6 +2800,7 @@
       "top_chunk_id": "issue_41435_chunk_000"
     },
     {
+      "mode": "final_multi_query_hybrid_rerank",
       "question_id": "rag_q_42183",
       "label": "feature",
       "question": "What was the problem and resolution for this feature Node.js issue: impl CookieStore??",
@@ -521,6 +2844,7 @@
       "top_chunk_id": "issue_42183_chunk_000"
     },
     {
+      "mode": "final_multi_query_hybrid_rerank",
       "question_id": "rag_q_52250",
       "label": "feature",
       "question": "What was the problem and resolution for this feature Node.js issue: Please add latest brotli 1.1.0 bindings with compression dictionary support?",
@@ -565,6 +2889,7 @@
       "top_chunk_id": "issue_52250_chunk_000"
     },
     {
+      "mode": "final_multi_query_hybrid_rerank",
       "question_id": "rag_q_53700",
       "label": "feature",
       "question": "What was the problem and resolution for this feature Node.js issue: Allow `Buffer.copy` to take an `ArrayBuffer`?",
@@ -608,6 +2933,7 @@
       "top_chunk_id": "issue_53700_chunk_000"
     },
     {
+      "mode": "final_multi_query_hybrid_rerank",
       "question_id": "rag_q_43688",
       "label": "docs",
       "question": "What was the problem and resolution for this docs Node.js issue: http.IncomingMessage aborted Event isn't the same as http.IncomingMessage close Event?",
@@ -652,6 +2978,7 @@
       "top_chunk_id": "issue_43688_chunk_000"
     },
     {
+      "mode": "final_multi_query_hybrid_rerank",
       "question_id": "rag_q_51871",
       "label": "docs",
       "question": "What was the problem and resolution for this docs Node.js issue: Inaccurate sentence about the event loop tick and the process.nextTick?",
@@ -695,6 +3022,7 @@
       "top_chunk_id": "issue_45048_chunk_000"
     },
     {
+      "mode": "final_multi_query_hybrid_rerank",
       "question_id": "rag_q_55731",
       "label": "docs",
       "question": "What was the problem and resolution for this docs Node.js issue: Missing documentation for process.emit?",
@@ -739,6 +3067,7 @@
       "top_chunk_id": "issue_55731_chunk_000"
     },
     {
+      "mode": "final_multi_query_hybrid_rerank",
       "question_id": "rag_q_57094",
       "label": "docs",
       "question": "What was the problem and resolution for this docs Node.js issue: Potentially incorrect links at the bottom of the commonJs doc?",
@@ -783,6 +3112,7 @@
       "top_chunk_id": "issue_57094_chunk_000"
     },
     {
+      "mode": "final_multi_query_hybrid_rerank",
       "question_id": "rag_q_57418",
       "label": "docs",
       "question": "What was the problem and resolution for this docs Node.js issue: --cpu-prof-name 'CPU.${pid}.cpuprofile' doesn't replace the placeholder?",
@@ -827,6 +3157,7 @@
       "top_chunk_id": "issue_57418_chunk_000"
     },
     {
+      "mode": "final_multi_query_hybrid_rerank",
       "question_id": "rag_q_57993",
       "label": "docs",
       "question": "What was the problem and resolution for this docs Node.js issue: Docs Incorrectly State setImmediate() Runs Before Timers?",
@@ -870,6 +3201,7 @@
       "top_chunk_id": "issue_57993_chunk_000"
     },
     {
+      "mode": "final_multi_query_hybrid_rerank",
       "question_id": "rag_q_11865",
       "label": "question",
       "question": "What was the problem and resolution for this question Node.js issue: Missing stack traces from async functions after the first await?",
@@ -914,6 +3246,7 @@
       "top_chunk_id": "issue_11865_chunk_000"
     },
     {
+      "mode": "final_multi_query_hybrid_rerank",
       "question_id": "rag_q_16196",
       "label": "question",
       "question": "What was the problem and resolution for this question Node.js issue: SSL Handshake Error using node >= 8.6.0?",
@@ -958,6 +3291,7 @@
       "top_chunk_id": "issue_16196_chunk_000"
     },
     {
+      "mode": "final_multi_query_hybrid_rerank",
       "question_id": "rag_q_18288",
       "label": "question",
       "question": "What was the problem and resolution for this question Node.js issue: Feature request: url.join(baseUrl, ...others)?",
@@ -1001,6 +3335,7 @@
       "top_chunk_id": "issue_18288_chunk_000"
     },
     {
+      "mode": "final_multi_query_hybrid_rerank",
       "question_id": "rag_q_26795",
       "label": "question",
       "question": "What was the problem and resolution for this question Node.js issue: Downgrade HTTP/2 to HTTP1 over HTTP(non-TLS)?",
@@ -1044,6 +3379,7 @@
       "top_chunk_id": "issue_26795_chunk_000"
     },
     {
+      "mode": "final_multi_query_hybrid_rerank",
       "question_id": "rag_q_55417",
       "label": "question",
       "question": "What was the problem and resolution for this question Node.js issue: Can we supress the new experimental warning from the new default require(esm) setting??",
@@ -1088,6 +3424,7 @@
       "top_chunk_id": "issue_55417_chunk_000"
     },
     {
+      "mode": "final_multi_query_hybrid_rerank",
       "question_id": "rag_q_8735",
       "label": "question",
       "question": "What was the problem and resolution for this question Node.js issue: High CPU usage - futex_wait, gettimeofday syscalls?",

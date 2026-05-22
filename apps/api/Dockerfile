@@ -11,6 +11,7 @@ COPY app ./app
 COPY alembic ./alembic
 COPY alembic.ini ./alembic.ini
 COPY data ./data
+COPY eval_thresholds.yaml ./eval_thresholds.yaml
 
 EXPOSE 8000
 
