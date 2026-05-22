@@ -21,7 +21,7 @@ class Settings(BaseSettings):
     vault_token: str | None = Field(default=None, alias="VAULT_TOKEN")
     vault_token_file: str | None = Field(default=None, alias="VAULT_TOKEN_FILE")
 
-    redis_url: str | None = Field(default=None, alias="REDIS_URL")
+   
     api_url: str | None = Field(default=None, alias="API_URL")
 
     jwt_access_token_minutes: int = Field(
@@ -75,6 +75,15 @@ class Settings(BaseSettings):
     groq_max_tokens: int = Field(
         default=700,
         alias="GROQ_MAX_TOKENS",
+    )
+    redis_url: str = Field(
+        default="redis://127.0.0.1:6379/0",
+        alias="REDIS_URL",
+    )
+
+    chat_short_term_ttl_seconds: int = Field(
+        default=60 * 60 * 24,
+        alias="CHAT_SHORT_TERM_TTL_SECONDS",
     )
 
 

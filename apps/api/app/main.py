@@ -8,6 +8,8 @@ from app.api.routers.model_tools import router as model_tools_router
 from app.api.routers.rag import router as rag_router
 from app.api.routers.widgets import admin_router as widget_admin_router
 from app.api.routers.widgets import public_router as widget_public_router
+from app.api.routers.chat import router as chat_router
+from app.infra.redis import RedisShortTermMemory
 from app.infra.config import get_settings
 from app.infra.database import check_database_connection, init_database
 from app.infra.embeddings import EmbeddingModel
@@ -60,6 +62,13 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
             max_tokens=settings.groq_max_tokens,
         )
 
+    short_term_memory = RedisShortTermMemory(
+        redis_url=settings.redis_url,
+        ttl_seconds=settings.chat_short_term_ttl_seconds,
+    )
+    short_term_memory.ping()
+    app.state.short_term_memory = short_term_memory    
+
     yield
 
 
@@ -94,8 +103,18 @@ def minio_check() -> dict[str, object]:
     return {"minio_connected": True, "bucket": app.state.object_store.bucket}
 
 
+@app.get("/debug/redis-check")
+def redis_check() -> dict[str, object]:
+    app.state.short_term_memory.ping()
+    return {
+        "redis_connected": True,
+        "chat_short_term_ttl_seconds": app.state.short_term_memory.ttl_seconds,
+    }
+
+
 app.include_router(auth_router)
 app.include_router(model_tools_router)
 app.include_router(rag_router)
 app.include_router(widget_admin_router)
 app.include_router(widget_public_router)
+app.include_router(chat_router)
