@@ -5,9 +5,10 @@ from app.models.chat import Conversation
 from app.models.user import User
 from app.repositories.chat_repository import ChatRepository
 from app.schemas.chat import ChatRequest
+from app.services.rag_snapshot_service import RagSnapshotService
 from app.services.tool_service import ToolResult, ToolService
 
-#This version saves the message, runs tools, saves tool calls, writes to Redis, and returns a real triage-style response.
+
 class ChatError(RuntimeError):
     pass
 
@@ -19,10 +20,12 @@ class ChatService:
         db: Session,
         short_term_memory: RedisShortTermMemory,
         tool_service: ToolService | None = None,
+        rag_snapshot_service: RagSnapshotService | None = None,
     ) -> None:
         self.db = db
         self.short_term_memory = short_term_memory
         self.tool_service = tool_service
+        self.rag_snapshot_service = rag_snapshot_service
         self.chat_repo = ChatRepository(db)
 
     def _make_title(self, message: str) -> str:
@@ -148,6 +151,22 @@ class ChatService:
                 ],
             },
         )
+
+        if self.rag_snapshot_service is not None:
+            snapshot_key = self.rag_snapshot_service.save_snapshot_if_present(
+                user=user,
+                conversation_id=conversation.id,
+                user_message=user_message,
+                assistant_message=assistant_message,
+                user_question=payload.message,
+                repo=payload.repo,
+                tool_results=tool_results,
+            )
+            if snapshot_key is not None:
+                self.chat_repo.set_message_retrieval_snapshot_key(
+                    message=assistant_message,
+                    retrieval_snapshot_key=snapshot_key,
+                )
 
         self.short_term_memory.append_message(
             conversation_id=conversation.id,

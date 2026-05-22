@@ -133,3 +133,13 @@ class ChatRepository:
         self.db.add(tool_call)
         self.db.flush()
         return tool_call
+    
+    def set_message_retrieval_snapshot_key(
+        self,
+        *,
+        message: ChatMessage,
+        retrieval_snapshot_key: str,
+    ) -> ChatMessage:
+        message.retrieval_snapshot_key = retrieval_snapshot_key
+        self.db.flush()
+        return message
