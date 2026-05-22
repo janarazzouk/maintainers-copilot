@@ -12,6 +12,7 @@ from app.infra.model_server_client import ModelServerClient
 
 from app.api.routers.rag import router as rag_router
 from app.infra.embeddings import EmbeddingModel
+from app.infra.groq_client import GroqLLMClient
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
@@ -29,6 +30,18 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     )
 
     app_secrets = vault.read_app_secrets()
+    groq_api_key = app_secrets.get("groq_api_key")
+
+    app.state.groq_llm_client = None
+
+    if groq_api_key:
+        app.state.groq_llm_client = GroqLLMClient(
+            api_key=str(groq_api_key),
+            base_url=settings.groq_base_url,
+            model=settings.groq_model,
+            temperature=settings.groq_temperature,
+            max_tokens=settings.groq_max_tokens,
+        )
 
     init_database(app_secrets["database_url"])
     check_database_connection()

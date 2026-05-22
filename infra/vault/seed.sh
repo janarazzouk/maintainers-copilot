@@ -22,7 +22,7 @@ done
 echo "Vault is ready."
 echo "Seeding secrets into Vault..."
 
-vault kv put secret/app \
+vault kv patch secret/app \
   database_user="postgres" \
   database_password="postgres" \
   database_name="maintainers_copilot" \

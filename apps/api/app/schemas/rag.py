@@ -7,6 +7,7 @@ class RagQueryRequest(BaseModel):
 
     # Optional metadata filter.
     # Example: "bug", "docs", "feature", "question"
+    generate_answer: bool = False
     label_filter: str | None = None
 
 
@@ -42,3 +43,5 @@ class RagQueryResponse(BaseModel):
     answer: str
     sources: list[RagSource]
     trace: RagTrace
+    llm_model: str | None = None
+    llm_usage: dict | None = None

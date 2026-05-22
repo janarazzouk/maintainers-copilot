@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
 from sqlalchemy.orm import Session
+from app.infra.groq_client import GroqLLMClient
 
 from app.infra.embeddings import EmbeddingModel
 from app.models.rag import RagChunk
@@ -40,9 +41,11 @@ class RagService:
         self,
         db: Session,
         embedding_model: EmbeddingModel,
+        llm_client: GroqLLMClient | None = None,
     ) -> None:
         self.repository = RagRepository(db)
         self.embedding_model = embedding_model
+        self.llm_client = llm_client
         self.query_rewriter = RuleBasedMultiQueryRewriter()
         self.reranker = LightweightTechnicalReranker()
 
@@ -114,8 +117,28 @@ class RagService:
                 )
             )
 
+
+        answer = self._build_retrieval_answer(sources)
+        llm_model = None
+        llm_usage = None
+
+        if payload.generate_answer:
+            if self.llm_client is None:
+                raise RuntimeError(
+                    "LLM answer generation was requested, but Groq is not configured."
+                )
+
+            context_sources = self._select_generation_sources(sources)
+            context_blocks = self._build_context_blocks(context_sources)
+            llm_response = self.llm_client.generate_rag_answer(
+                question=payload.question,
+                context_blocks=context_blocks,
+            )
+            answer = llm_response.content
+            llm_model = llm_response.model
+            llm_usage = llm_response.usage
         return RagQueryResponse(
-            answer=self._build_retrieval_answer(sources),
+            answer=answer,
             sources=sources,
             trace=RagTrace(
                 original_question=payload.question,
@@ -129,6 +152,8 @@ class RagService:
                     [source.doc_id for source in sources]
                 ),
             ),
+            llm_model=llm_model,
+            llm_usage=llm_usage,
         )
 
     def _retrieve_hybrid_candidates(
@@ -287,3 +312,53 @@ class RagService:
             return cleaned
 
         return cleaned[: max_chars - 3].rstrip() + "..."
+    
+    def _build_context_blocks(self, sources: list[RagSource]) -> list[str]:
+        blocks: list[str] = []
+
+        for index, source in enumerate(sources, start=1):
+            issue_part = (
+                f"#{source.issue_id}" if source.issue_id is not None else source.doc_id
+            )
+
+            block = (
+                f"Source {index}\n"
+                f"Issue: {issue_part}\n"
+                f"Title: {source.title}\n"
+                f"URL: {source.url}\n"
+                f"Label: {source.final_label}\n"
+                f"Resolution type: {source.resolution_type}\n"
+                f"Problem summary: {source.problem_summary_excerpt or ''}\n"
+                f"Maintainer answer: {source.maintainer_answer_excerpt or ''}\n"
+                f"Relevant chunk: {source.chunk_excerpt}\n"
+            )
+
+            blocks.append(block)
+
+        return blocks
+    
+    def _select_generation_sources(self, sources: list[RagSource]) -> list[RagSource]:
+        """Choose sources for LLM generation.
+
+        The API can return several retrieved sources, but the LLM should not be
+        asked to merge unrelated issues into one answer.
+        """
+
+        if not sources:
+            return []
+
+        top_source = sources[0]
+        selected: list[RagSource] = [top_source]
+
+        for source in sources[1:]:
+            same_issue_strength = (
+                source.matched_terms
+                and source.score >= top_source.score * 0.80
+            )
+
+            close_score = source.score >= top_source.score * 0.90
+
+            if same_issue_strength or close_score:
+                selected.append(source)
+
+        return selected[:3]

@@ -47,6 +47,22 @@ class Settings(BaseSettings):
         default=32,
         alias="EMBEDDING_BATCH_SIZE",
     )
+    groq_base_url: str = Field(
+        default="https://api.groq.com/openai/v1",
+        alias="GROQ_BASE_URL",
+    )
+    groq_model: str = Field(
+        default="llama-3.1-8b-instant",
+        alias="GROQ_MODEL",
+    )
+    groq_temperature: float = Field(
+        default=0.2,
+        alias="GROQ_TEMPERATURE",
+    )
+    groq_max_tokens: int = Field(
+        default=700,
+        alias="GROQ_MAX_TOKENS",
+    )
     
 
 
