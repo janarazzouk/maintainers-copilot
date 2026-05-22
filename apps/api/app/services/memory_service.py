@@ -19,11 +19,10 @@ class MemoryError(RuntimeError):
 
 class LongTermMemoryService:
     # Similarity is 1 - cosine distance.
-    # 0.82 is more practical than 0.88 for short preference memories.
+    # 0.82 is practical for short preference memories.
     DEDUP_SIMILARITY_THRESHOLD = 0.82
 
-    # Token overlap catches wording variants that embeddings may miss, such as:
-    # "changed-files-only patches" vs "only changed files when receiving code fixes"
+    # Token overlap catches wording variants that embeddings may miss.
     DEDUP_TOKEN_OVERLAP_THRESHOLD = 0.45
 
     STOPWORDS = {
@@ -77,7 +76,10 @@ class LongTermMemoryService:
         if memory_type not in {"semantic", "episodic", "procedural"}:
             raise MemoryError("memory_type must be semantic, episodic, or procedural.")
 
+        # Security rule:
+        # Never store raw memory content. Store only the redacted version.
         redacted_content = redact_text(cleaned_content)
+
         normalized_content = self._normalize_for_dedup(redacted_content)
         embedding = self._embed_text(redacted_content)
 
@@ -134,7 +136,8 @@ class LongTermMemoryService:
         memory = self.memories.create_memory(
             user_id=user.id,
             memory_type=memory_type,
-            content=cleaned_content,
+            # Store only redacted content in both fields.
+            content=redacted_content,
             redacted_content=redacted_content,
             embedding=embedding,
             memory_metadata=merged_metadata,
