@@ -123,10 +123,11 @@ services:
     build:
       context: ./apps/chatbot
     container_name: mc-chatbot
-    env_file:
-      - .env
+    environment:
+      API_BASE_URL: http://api:8000
+      PYTHONPATH: /app
     ports:
-      - "${CHATBOT_PORT}:8501"
+      - "${CHATBOT_PORT:-8501}:8501"
     depends_on:
       api:
         condition: service_started

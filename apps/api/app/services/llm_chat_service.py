@@ -93,7 +93,7 @@ class LLMChatService:
         messages.append(
             {
                 "role": "system",
-                "content": self._build_final_evidence_policy(tool_results),
+                "content": self._build_final_answer_policy(tool_results),
             }
         )
 
@@ -159,78 +159,61 @@ class LLMChatService:
 
         return messages
 
-    def _build_final_evidence_policy(self, tool_results: list[ToolResult]) -> str:
-        classifier_label = self._extract_classifier_label(tool_results)
-        classifier_confidence = self._extract_classifier_confidence(tool_results)
+    def _build_final_answer_policy(self, tool_results: list[ToolResult]) -> str:
+        issue_type = self._extract_classifier_label(tool_results)
+        entities = self._extract_entities(tool_results)
         rag_strength = self._assess_rag_strength(tool_results)
         rag_top_sources = self._extract_rag_top_sources(tool_results)
 
         lines = [
-            "Before writing the final answer, obey this evidence policy strictly:",
+            "Write the final answer as a normal helpful maintainer response.",
             "",
-            "Classifier policy:",
+            "Important:",
+            "- Do not mention tool calls, classifier, NER, RAG, scores, backend fallback, or LLM/provider errors.",
+            "- Do not format the answer as a backend/debug report.",
+            "- Tell the user what they should do next.",
+            "- Keep it concise and practical.",
+            "",
+            "Use this answer shape:",
+            "### Likely cause",
+            "Explain the likely cause in plain language.",
+            "",
+            "### Files to check",
+            "List likely files/functions from the extracted entities.",
+            "",
+            "### What to try next",
+            "Give concrete next steps.",
+            "",
         ]
 
-        if classifier_label:
-            confidence_text = (
-                f" with confidence {classifier_confidence}"
-                if classifier_confidence is not None
-                else ""
-            )
+        if issue_type:
             lines.append(
-                f"- The classifier prediction is `{classifier_label}`{confidence_text}."
+                f"Internal context only: the classifier predicted `{issue_type}`. Do not expose this as a classifier result."
             )
-            lines.append(
-                "- In the final answer, write this as `Classifier prediction`, not as your own unsupported label."
-            )
-            lines.append(
-                "- If you think the issue should be labeled differently, add a separate `My assessment` line and explain why."
-            )
-        else:
-            lines.append("- No classifier prediction was available.")
 
-        lines.extend(
-            [
-                "",
-                "RAG evidence policy:",
-                f"- RAG evidence strength: {rag_strength}.",
-            ]
-        )
+        if entities:
+            lines.append("")
+            lines.append("Internal extracted entities:")
+            for entity in entities[:8]:
+                lines.append(f"- {entity}")
+
+        lines.append("")
+        lines.append(f"Internal retrieval evidence strength: {rag_strength}.")
 
         if rag_top_sources:
-            lines.append("- Top retrieved sources:")
-            for source in rag_top_sources:
+            lines.append("Internal retrieved sources:")
+            for source in rag_top_sources[:5]:
                 title = source.get("title") or "unknown title"
                 score = source.get("score")
-                if score is None:
-                    lines.append(f"  - {title}")
-                else:
-                    lines.append(f"  - {title} | score={score}")
+                lines.append(f"- {title} | score={score}")
 
         if rag_strength in {"weak", "none"}:
             lines.append(
-                "- Say clearly that the retrieved evidence is weak or not directly related."
+                "Because evidence is weak, say: I do not see a strong matching resolved issue yet."
             )
-            lines.append("- Do not claim these are strong related resolved issues.")
             lines.append(
-                "- Suggest using more specific repo docs/issues or asking for a reproduction."
+                "Do not claim the retrieved issue is a confirmed match."
             )
-        else:
-            lines.append(
-                "- You may cite retrieved issues as related evidence, but only based on the tool output."
-            )
-
-        lines.extend(
-            [
-                "",
-                "Final answer must use this structure:",
-                "1. Classifier prediction",
-                "2. My assessment, only if different",
-                "3. Key entities",
-                "4. Related evidence",
-                "5. Suggested maintainer action",
-            ]
-        )
 
         return "\n".join(lines)
 
@@ -252,13 +235,27 @@ class LLMChatService:
 
         return str(label)
 
-    def _extract_classifier_confidence(self, tool_results: list[ToolResult]) -> Any:
-        result = self._find_tool(tool_results, "classify_issue")
+    def _extract_entities(self, tool_results: list[ToolResult]) -> list[str]:
+        result = self._find_tool(tool_results, "extract_entities")
         if result is None or result.status != "success":
-            return None
+            return []
 
         output = result.output_json
-        return output.get("confidence") or output.get("score") or output.get("probability")
+        entities = output.get("entities", [])
+
+        formatted: list[str] = []
+        for entity in entities:
+            if isinstance(entity, dict):
+                text = entity.get("text") or entity.get("value")
+                entity_type = entity.get("type") or entity.get("label")
+                if text and entity_type:
+                    formatted.append(f"{text} ({entity_type})")
+                elif text:
+                    formatted.append(str(text))
+            else:
+                formatted.append(str(entity))
+
+        return formatted
 
     def _assess_rag_strength(self, tool_results: list[ToolResult]) -> str:
         result = self._find_tool(tool_results, "rag_search")
@@ -381,14 +378,9 @@ class LLMChatService:
 
     def _fallback_answer_from_tools(self, tool_results: list[ToolResult]) -> str:
         if not tool_results:
-            return "I could not generate a final answer."
+            return "I could not find enough information to triage this issue."
 
-        lines = ["I ran the available tools, but the LLM did not return a final response.", ""]
-
-        for result in tool_results:
-            lines.append(f"- {result.tool_name}: {result.status}")
-
-        return "\n".join(lines)
+        return "I found some issue details, but I could not generate a full answer. Ask for the exact error, stack trace, affected version, and a minimal reproduction."
 
     def _load_system_prompt(self) -> str:
         prompt_path = Path(__file__).resolve().parents[1] / "prompts" / "chat_system.md"
